@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -29,42 +30,33 @@ interface ItemDialogProps {
 
 export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDialogProps) => {
   const [formData, setFormData] = useState({
-    name: '',
     category: '',
     condition: 'working' as 'working' | 'damaged' | 'for-parts',
     quantity: 1,
     location: '',
     dateAdded: new Date().toISOString().split('T')[0],
-    description: '',
-    brand: '',
-    model: ''
+    description: ''
   });
 
   useEffect(() => {
     if (item) {
       setFormData({
-        name: item.name,
         category: item.category,
         condition: item.condition,
         quantity: item.quantity,
         location: item.location,
         dateAdded: item.dateAdded,
-        description: item.description || '',
-        brand: item.brand || '',
-        model: item.model || ''
+        description: item.description || ''
       });
     } else if (isOpen) {
       // Reset form when opening for new item
       setFormData({
-        name: '',
         category: '',
         condition: 'working',
         quantity: 1,
         location: '',
         dateAdded: new Date().toISOString().split('T')[0],
-        description: '',
-        brand: '',
-        model: ''
+        description: ''
       });
     }
   }, [item, isOpen]);
@@ -92,55 +84,20 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Item Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="e.g., Dell Desktop Computer"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="brand">Brand</Label>
-              <Input
-                id="brand"
-                value={formData.brand}
-                onChange={(e) => handleInputChange('brand', e.target.value)}
-                placeholder="e.g., Dell, Apple, HP"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="model">Model</Label>
-              <Input
-                id="model"
-                value={formData.model}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-                placeholder="e.g., OptiPlex 7090"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.filter(cat => cat !== 'all').map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
