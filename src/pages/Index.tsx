@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Package, TrendingUp, AlertTriangle, BarChart3 } from 'lucide-react';
+import { Plus, Search, Package, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -163,7 +163,7 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Weight</CardTitle>
@@ -199,19 +199,6 @@ const Index = () => {
               <div className="text-2xl font-bold text-green-600">{readyWeight.toFixed(1)} kg</div>
               <p className="text-xs text-muted-foreground">
                 Ready for processing
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Categories</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{new Set(items.map(item => item.category)).size}</div>
-              <p className="text-xs text-muted-foreground">
-                Different categories
               </p>
             </CardContent>
           </Card>
