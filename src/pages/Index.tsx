@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
+import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
