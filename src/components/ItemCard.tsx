@@ -64,6 +64,17 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           </Badge>
         </div>
 
+        {/* Display first image if available */}
+        {item.images && item.images.length > 0 && (
+          <div className="mb-3">
+            <img
+              src={item.images[0]}
+              alt={`${item.category} photo`}
+              className="w-full h-32 object-cover rounded-lg border"
+            />
+          </div>
+        )}
+
         <div className="space-y-2 mb-3">
           <div className="flex items-center text-sm text-gray-600">
             <Weight className="h-4 w-4 mr-2" />
