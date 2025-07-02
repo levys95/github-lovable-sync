@@ -15,6 +15,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const startCamera = async () => {
     try {
@@ -27,8 +28,8 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      // Fallback to file input if camera access fails
-      fileInputRef.current?.click();
+      // Fallback to camera input for mobile devices
+      cameraInputRef.current?.click();
     }
   };
 
@@ -115,11 +116,22 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
         </div>
       </div>
 
+      {/* Regular file input for uploads */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         multiple
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
+      {/* Camera input for mobile devices - opens camera directly */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         onChange={handleFileUpload}
         className="hidden"
       />
