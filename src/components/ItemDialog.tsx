@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,8 @@ interface InventoryItem {
   description?: string;
   brand?: string;
   model?: string;
+  bigBagWeight?: number;
+  palletWeight?: number;
 }
 
 interface ItemDialogProps {
@@ -35,7 +38,9 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
     quantity: 1,
     location: '',
     dateAdded: new Date().toISOString().split('T')[0],
-    description: ''
+    description: '',
+    bigBagWeight: 0,
+    palletWeight: 0
   });
 
   useEffect(() => {
@@ -46,7 +51,9 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         quantity: item.quantity,
         location: item.location,
         dateAdded: item.dateAdded,
-        description: item.description || ''
+        description: item.description || '',
+        bigBagWeight: item.bigBagWeight || 0,
+        palletWeight: item.palletWeight || 0
       });
     } else if (isOpen) {
       // Reset form when opening for new item
@@ -56,7 +63,9 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         quantity: 1,
         location: '',
         dateAdded: new Date().toISOString().split('T')[0],
-        description: ''
+        description: '',
+        bigBagWeight: 0,
+        palletWeight: 0
       });
     }
   }, [item, isOpen]);
@@ -73,6 +82,8 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const netWeight = formData.quantity - formData.bigBagWeight - formData.palletWeight;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -106,7 +117,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="condition">Condition</Label>
               <Select value={formData.condition} onValueChange={(value) => handleInputChange('condition', value)}>
@@ -122,18 +133,6 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
-              <Input
-                id="quantity"
-                type="number"
-                min="1"
-                value={formData.quantity}
-                onChange={(e) => handleInputChange('quantity', parseInt(e.target.value))}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
               <Label htmlFor="dateAdded">Date Added</Label>
               <Input
                 id="dateAdded"
@@ -143,6 +142,59 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                 required
               />
             </div>
+          </div>
+
+          {/* Weight Section */}
+          <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
+            <h3 className="font-medium text-gray-900">Weight Information (kg)</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="quantity">Total Weight (kg)</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.quantity}
+                  onChange={(e) => handleInputChange('quantity', parseFloat(e.target.value) || 0)}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="bigBagWeight">Big Bag Weight (kg)</Label>
+                <Input
+                  id="bigBagWeight"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.bigBagWeight}
+                  onChange={(e) => handleInputChange('bigBagWeight', parseFloat(e.target.value) || 0)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="palletWeight">Pallet Weight (kg)</Label>
+                <Input
+                  id="palletWeight"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.palletWeight}
+                  onChange={(e) => handleInputChange('palletWeight', parseFloat(e.target.value) || 0)}
+                />
+              </div>
+            </div>
+            
+            {(formData.bigBagWeight > 0 || formData.palletWeight > 0) && (
+              <div className="pt-2 border-t">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-700">Net Weight:</span>
+                  <span className="text-lg font-bold text-green-600">{netWeight.toFixed(2)} kg</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

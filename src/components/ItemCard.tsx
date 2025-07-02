@@ -1,4 +1,5 @@
-import { Edit, Trash2, MapPin, Calendar } from 'lucide-react';
+
+import { Edit, Trash2, MapPin, Calendar, Weight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,8 @@ interface InventoryItem {
   description?: string;
   brand?: string;
   model?: string;
+  bigBagWeight?: number;
+  palletWeight?: number;
 }
 
 interface ItemCardProps {
@@ -41,6 +44,9 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
       default: return condition;
     }
   };
+
+  const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+  const hasTareWeight = (item.bigBagWeight && item.bigBagWeight > 0) || (item.palletWeight && item.palletWeight > 0);
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
@@ -71,24 +77,41 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
       
       <CardContent className="pt-0">
         <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Quantity:</span>
-            <span className="font-semibold text-lg">{item.quantity}</span>
+          {/* Weight Information */}
+          <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Weight className="h-4 w-4 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">Weight Information</span>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Total Weight:</span>
+              <span className="font-semibold">{item.quantity} kg</span>
+            </div>
+            
+            {hasTareWeight && (
+              <>
+                {item.bigBagWeight && item.bigBagWeight > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Big Bag:</span>
+                    <span className="text-sm">-{item.bigBagWeight} kg</span>
+                  </div>
+                )}
+                
+                {item.palletWeight && item.palletWeight > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Pallet:</span>
+                    <span className="text-sm">-{item.palletWeight} kg</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                  <span className="text-sm font-medium text-green-700">Net Weight:</span>
+                  <span className="font-bold text-green-700">{netWeight.toFixed(2)} kg</span>
+                </div>
+              </>
+            )}
           </div>
-          
-          {item.brand && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Brand:</span>
-              <span className="font-medium">{item.brand}</span>
-            </div>
-          )}
-          
-          {item.model && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Model:</span>
-              <span className="font-medium">{item.model}</span>
-            </div>
-          )}
           
           <div className="flex items-center text-sm text-gray-600">
             <MapPin className="h-4 w-4 mr-1" />

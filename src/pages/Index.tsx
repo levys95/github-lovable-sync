@@ -18,6 +18,8 @@ interface InventoryItem {
   description?: string;
   brand?: string;
   model?: string;
+  bigBagWeight?: number;
+  palletWeight?: number;
 }
 
 const Index = () => {
@@ -27,30 +29,33 @@ const Index = () => {
       name: 'iPhone 12',
       category: 'Smartphones',
       condition: 'working',
-      quantity: 5,
+      quantity: 15.5,
       location: 'Warehouse A-1',
       dateAdded: '2024-01-15',
       brand: 'Apple',
       model: 'iPhone 12',
-      description: 'Working smartphones ready for refurbishment'
+      description: 'Working smartphones ready for refurbishment',
+      bigBagWeight: 1.2,
+      palletWeight: 0.8
     },
     {
       id: '2',
       name: 'Samsung Galaxy Screen',
       category: 'Gsm a touches',
       condition: 'damaged',
-      quantity: 12,
+      quantity: 8.3,
       location: 'Warehouse B-2',
       dateAdded: '2024-01-20',
       brand: 'Samsung',
-      description: 'Touch screens for mobile devices'
+      description: 'Touch screens for mobile devices',
+      bigBagWeight: 0.5
     },
     {
       id: '3',
       name: 'Generic Phone Parts',
       category: 'China Phone',
       condition: 'for-parts',
-      quantity: 8,
+      quantity: 12.1,
       location: 'Warehouse C-1',
       dateAdded: '2024-01-18',
       description: 'Various Chinese phone components'
@@ -92,9 +97,13 @@ const Index = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const workingItems = items.filter(item => item.condition === 'working').reduce((sum, item) => sum + item.quantity, 0);
-  const damagedItems = items.filter(item => item.condition === 'damaged').reduce((sum, item) => sum + item.quantity, 0);
+  const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalNetWeight = items.reduce((sum, item) => {
+    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    return sum + netWeight;
+  }, 0);
+  const workingWeight = items.filter(item => item.condition === 'working').reduce((sum, item) => sum + item.quantity, 0);
+  const damagedWeight = items.filter(item => item.condition === 'damaged').reduce((sum, item) => sum + item.quantity, 0);
 
   const handleAddItem = (newItem: Omit<InventoryItem, 'id'>) => {
     const item: InventoryItem = {
@@ -143,39 +152,39 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Items</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Weight</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalItems}</div>
+              <div className="text-2xl font-bold">{totalWeight.toFixed(1)} kg</div>
               <p className="text-xs text-muted-foreground">
-                Items in inventory
+                Gross weight in inventory
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Working Condition</CardTitle>
+              <CardTitle className="text-sm font-medium">Net Weight</CardTitle>
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{workingItems}</div>
+              <div className="text-2xl font-bold text-green-600">{totalNetWeight.toFixed(1)} kg</div>
               <p className="text-xs text-muted-foreground">
-                Ready for reuse
+                Weight excluding tare
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Damaged Items</CardTitle>
+              <CardTitle className="text-sm font-medium">Working Items</CardTitle>
               <AlertTriangle className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{damagedItems}</div>
+              <div className="text-2xl font-bold text-orange-600">{workingWeight.toFixed(1)} kg</div>
               <p className="text-xs text-muted-foreground">
-                Need repair/recycling
+                Ready for reuse
               </p>
             </CardContent>
           </Card>
