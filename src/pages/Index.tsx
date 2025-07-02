@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,36 +24,36 @@ const Index = () => {
   const [items, setItems] = useState<InventoryItem[]>([
     {
       id: '1',
-      name: 'Dell Desktop Computer',
-      category: 'Computers',
+      name: 'iPhone 12',
+      category: 'Smartphones',
       condition: 'working',
       quantity: 5,
       location: 'Warehouse A-1',
       dateAdded: '2024-01-15',
-      brand: 'Dell',
-      model: 'OptiPlex 7090',
-      description: 'Desktop computers in working condition'
+      brand: 'Apple',
+      model: 'iPhone 12',
+      description: 'Working smartphones ready for refurbishment'
     },
     {
       id: '2',
-      name: 'iPhone Smartphones',
-      category: 'Mobile Devices',
+      name: 'Samsung Galaxy Screen',
+      category: 'Gsm a touches',
       condition: 'damaged',
       quantity: 12,
       location: 'Warehouse B-2',
       dateAdded: '2024-01-20',
-      brand: 'Apple',
-      description: 'Various iPhone models with screen damage'
+      brand: 'Samsung',
+      description: 'Touch screens for mobile devices'
     },
     {
       id: '3',
-      name: 'LCD Monitors',
-      category: 'Monitors',
+      name: 'Generic Phone Parts',
+      category: 'China Phone',
       condition: 'for-parts',
       quantity: 8,
       location: 'Warehouse C-1',
       dateAdded: '2024-01-18',
-      description: 'Monitors suitable for parts harvesting'
+      description: 'Various Chinese phone components'
     }
   ]);
 
@@ -63,7 +62,27 @@ const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-  const categories = ['all', 'Computers', 'Mobile Devices', 'Monitors', 'Printers', 'Cables', 'Components', 'Other'];
+  const categories = [
+    'all', 
+    'Smartphones', 
+    'Gsm a touches', 
+    'China Phone', 
+    'power supply full', 
+    'hdd full', 
+    '15 au', 
+    '30 au', 
+    '50 au', 
+    '100 au', 
+    '150 au', 
+    '200 au', 
+    '250 au', 
+    '300 au', 
+    '350 au', 
+    '400 au', 
+    '800 au', 
+    '1000 +', 
+    'full cdrom'
+  ];
 
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

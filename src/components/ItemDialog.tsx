@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -32,7 +31,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    condition: 'working' as const,
+    condition: 'working' as 'working' | 'damaged' | 'for-parts',
     quantity: 1,
     location: '',
     dateAdded: new Date().toISOString().split('T')[0],
