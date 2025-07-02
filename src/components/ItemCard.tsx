@@ -42,9 +42,9 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
 
   const getConditionText = (condition: string) => {
     switch (condition) {
-      case 'ready': return 'Ready';
-      case 'waiting-sorting': return 'Waiting Sorting';
-      case 'unknown': return 'Unknown';
+      case 'ready': return 'Prêt';
+      case 'waiting-sorting': return 'En Attente de Tri';
+      case 'unknown': return 'Inconnu';
       default: return condition;
     }
   };
@@ -69,7 +69,7 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           <div className="mb-3">
             <img
               src={item.images[0]}
-              alt={`${item.category} photo`}
+              alt={`Photo ${item.category}`}
               className="w-full h-32 object-cover rounded-lg border"
             />
           </div>
@@ -93,7 +93,7 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="h-4 w-4 mr-2" />
-            <span>{new Date(item.dateAdded).toLocaleDateString()}</span>
+            <span>{new Date(item.dateAdded).toLocaleDateString('fr-FR')}</span>
           </div>
 
           {item.brand && (

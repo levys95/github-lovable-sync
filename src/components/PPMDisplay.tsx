@@ -16,11 +16,11 @@ export const PPMDisplay = ({ ppmTotals, totalWeight, totalGrossWeight }: PPMDisp
       <CardHeader className="text-center pb-3">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Zap className="h-5 w-5 text-amber-500" />
-          <CardTitle className="text-lg font-bold text-gray-800">Total Metal Content</CardTitle>
+          <CardTitle className="text-lg font-bold text-gray-800">Contenu Métallique Total</CardTitle>
         </div>
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <div className="text-3xl font-bold text-gray-900 mb-1">{totalGrossWeight.toFixed(1)} KG</div>
-          <p className="text-sm text-gray-500 font-medium">Total Weight</p>
+          <p className="text-sm text-gray-500 font-medium">Poids Total</p>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -46,7 +46,7 @@ export const PPMDisplay = ({ ppmTotals, totalWeight, totalGrossWeight }: PPMDisp
           <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
             <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmTotals.Cu)}%</div>
             <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-            <div className="text-xs text-orange-500">percent</div>
+            <div className="text-xs text-orange-500">pourcent</div>
           </div>
         </div>
       </CardContent>

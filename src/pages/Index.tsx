@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,41 +35,41 @@ const Index = () => {
       category: 'Smartphones',
       condition: 'ready',
       quantity: 15.5,
-      location: 'Warehouse A-1',
+      location: 'Entrepôt A-1',
       dateAdded: '2024-01-15',
       brand: 'Apple',
       model: 'iPhone 12',
-      description: 'Working smartphones ready for refurbishment',
+      description: 'Smartphones fonctionnels prêts pour la remise à neuf',
       bigBagWeight: 1.2,
       palletWeight: 0.8,
       images: [],
-      shipmentNumber: 'SH-2024-001'
+      shipmentNumber: 'EXP-2024-001'
     },
     {
       id: '2',
-      name: 'Samsung Galaxy Screen',
+      name: 'Écran Samsung Galaxy',
       category: 'Gsm a touches',
       condition: 'waiting-sorting',
       quantity: 8.3,
-      location: 'Warehouse B-2',
+      location: 'Entrepôt B-2',
       dateAdded: '2024-01-20',
       brand: 'Samsung',
-      description: 'Touch screens for mobile devices',
+      description: 'Écrans tactiles pour appareils mobiles',
       bigBagWeight: 0.5,
       images: [],
-      shipmentNumber: 'SH-2024-002'
+      shipmentNumber: 'EXP-2024-002'
     },
     {
       id: '3',
-      name: 'Generic Phone Parts',
+      name: 'Pièces de téléphone génériques',
       category: 'China Phone',
       condition: 'unknown',
       quantity: 12.1,
-      location: 'Warehouse C-1',
+      location: 'Entrepôt C-1',
       dateAdded: '2024-01-18',
-      description: 'Various Chinese phone components',
+      description: 'Divers composants de téléphones chinois',
       images: [],
-      shipmentNumber: 'SH-2024-003'
+      shipmentNumber: 'EXP-2024-003'
     }
   ]);
 
@@ -177,14 +178,14 @@ const Index = () => {
             <div className="flex items-center space-x-3">
               <img 
                 src="/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png" 
-                alt="SFDE Logo" 
+                alt="Logo SFDE" 
                 className="h-8 w-auto"
               />
-              <h1 className="text-2xl font-bold text-gray-900">E-Waste Warehouse Manager</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Gestionnaire Entrepôt E-Déchets</h1>
             </div>
             <Button onClick={() => setIsDialogOpen(true)} className="flex items-center space-x-2">
               <Plus className="h-4 w-4" />
-              <span>Add Item</span>
+              <span>Ajouter Article</span>
             </Button>
           </div>
         </div>
@@ -198,11 +199,11 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <AlertTriangle className="h-5 w-5 text-green-600" />
-                <CardTitle className="text-lg font-bold text-green-800">Ready Items</CardTitle>
+                <CardTitle className="text-lg font-bold text-green-800">Articles Prêts</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-green-900 mb-1">{readyWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-green-600 font-medium">Gross Weight</p>
+                <p className="text-sm text-green-600 font-medium">Poids Brut</p>
                 <p className="text-xs text-green-500">Net: {readyNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
@@ -229,7 +230,7 @@ const Index = () => {
                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(readyPPM.Cu)}%</div>
                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">percent</div>
+                  <div className="text-xs text-orange-500">pourcent</div>
                 </div>
               </div>
             </CardContent>
@@ -240,11 +241,11 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <TrendingUp className="h-5 w-5 text-yellow-600" />
-                <CardTitle className="text-lg font-bold text-yellow-800">Waiting Sorting</CardTitle>
+                <CardTitle className="text-lg font-bold text-yellow-800">En Attente de Tri</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-yellow-900 mb-1">{waitingSortingWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-yellow-600 font-medium">Gross Weight</p>
+                <p className="text-sm text-yellow-600 font-medium">Poids Brut</p>
                 <p className="text-xs text-yellow-500">Net: {waitingSortingNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
@@ -271,7 +272,7 @@ const Index = () => {
                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(waitingSortingPPM.Cu)}%</div>
                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">percent</div>
+                  <div className="text-xs text-orange-500">pourcent</div>
                 </div>
               </div>
             </CardContent>
@@ -282,11 +283,11 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <AlertTriangle className="h-5 w-5 text-gray-600" />
-                <CardTitle className="text-lg font-bold text-gray-800">Unknown Items</CardTitle>
+                <CardTitle className="text-lg font-bold text-gray-800">Articles Inconnus</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-gray-900 mb-1">{unknownWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-gray-600 font-medium">Gross Weight</p>
+                <p className="text-sm text-gray-600 font-medium">Poids Brut</p>
                 <p className="text-xs text-gray-500">Net: {unknownNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
@@ -313,7 +314,7 @@ const Index = () => {
                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(unknownPPM.Cu)}%</div>
                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">percent</div>
+                  <div className="text-xs text-orange-500">pourcent</div>
                 </div>
               </div>
             </CardContent>
@@ -324,11 +325,11 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Zap className="h-5 w-5 text-purple-600" />
-                <CardTitle className="text-lg font-bold text-purple-800">Total Items</CardTitle>
+                <CardTitle className="text-lg font-bold text-purple-800">Total Articles</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-purple-900 mb-1">{totalWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-purple-600 font-medium">Gross Weight</p>
+                <p className="text-sm text-purple-600 font-medium">Poids Brut</p>
                 <p className="text-xs text-purple-500">Net: {totalNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
@@ -355,7 +356,7 @@ const Index = () => {
                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(totalPPM.Cu)}%</div>
                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">percent</div>
+                  <div className="text-xs text-orange-500">pourcent</div>
                 </div>
               </div>
             </CardContent>
@@ -367,7 +368,7 @@ const Index = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search items, brands, models, or shipment numbers..."
+              placeholder="Rechercher articles, marques, modèles ou numéros d'expédition..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -380,7 +381,7 @@ const Index = () => {
           >
             {categories.map(category => (
               <option key={category} value={category}>
-                {category === 'all' ? 'All Categories' : category}
+                {category === 'all' ? 'Toutes Catégories' : category}
               </option>
             ))}
           </select>
@@ -391,17 +392,17 @@ const Index = () => {
           <Card className="text-center py-12">
             <CardContent>
               <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No items found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun article trouvé</h3>
               <p className="text-gray-500 mb-4">
                 {searchTerm || selectedCategory !== 'all' 
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Get started by adding your first inventory item.'
+                  ? 'Essayez d\'ajuster vos critères de recherche ou de filtrage.'
+                  : 'Commencez par ajouter votre premier article d\'inventaire.'
                 }
               </p>
               {!searchTerm && selectedCategory === 'all' && (
                 <Button onClick={() => setIsDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add First Item
+                  Ajouter Premier Article
                 </Button>
               )}
             </CardContent>
