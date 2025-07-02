@@ -108,16 +108,33 @@ const Index = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalNetWeight = items.reduce((sum, item) => {
+  // Calculate statistics for each condition
+  const readyItems = items.filter(item => item.condition === 'ready');
+  const waitingSortingItems = items.filter(item => item.condition === 'waiting-sorting');
+  const unknownItems = items.filter(item => item.condition === 'unknown');
+
+  const readyWeight = readyItems.reduce((sum, item) => sum + item.quantity, 0);
+  const readyNetWeight = readyItems.reduce((sum, item) => {
     const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
     return sum + netWeight;
   }, 0);
-  const readyWeight = items.filter(item => item.condition === 'ready').reduce((sum, item) => sum + item.quantity, 0);
-  const waitingSortingWeight = items.filter(item => item.condition === 'waiting-sorting').reduce((sum, item) => sum + item.quantity, 0);
 
-  // Calculate PPM totals
-  const ppmTotals = calculateTotalPPM(items);
+  const waitingSortingWeight = waitingSortingItems.reduce((sum, item) => sum + item.quantity, 0);
+  const waitingSortingNetWeight = waitingSortingItems.reduce((sum, item) => {
+    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    return sum + netWeight;
+  }, 0);
+
+  const unknownWeight = unknownItems.reduce((sum, item) => sum + item.quantity, 0);
+  const unknownNetWeight = unknownItems.reduce((sum, item) => {
+    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    return sum + netWeight;
+  }, 0);
+
+  // Calculate PPM for each condition
+  const readyPPM = calculateTotalPPM(readyItems);
+  const waitingSortingPPM = calculateTotalPPM(waitingSortingItems);
+  const unknownPPM = calculateTotalPPM(unknownItems);
 
   const handleAddItem = (newItem: Omit<InventoryItem, 'id'>) => {
     const item: InventoryItem = {
@@ -163,47 +180,132 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Weight</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Ready Items */}
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-200">
+            <CardHeader className="text-center pb-3">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <AlertTriangle className="h-5 w-5 text-green-600" />
+                <CardTitle className="text-lg font-bold text-green-800">Ready Items</CardTitle>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="text-3xl font-bold text-green-900 mb-1">{readyWeight.toFixed(1)} KG</div>
+                <p className="text-sm text-green-600 font-medium">Gross Weight</p>
+                <p className="text-xs text-green-500">Net: {readyNetWeight.toFixed(1)} kg</p>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalWeight.toFixed(1)} kg</div>
-              <p className="text-xs text-muted-foreground">
-                Gross weight in inventory
-              </p>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(readyPPM.Ag)}</div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                  <div className="text-xs text-gray-500">ppm</div>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(readyPPM.Pd)}</div>
+                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                  <div className="text-xs text-blue-500">ppm</div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(readyPPM.Au)}</div>
+                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                  <div className="text-xs text-yellow-500">ppm</div>
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(readyPPM.Cu)}%</div>
+                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                  <div className="text-xs text-orange-500">percent</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Net Weight</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+          {/* Waiting Sorting Items */}
+          <Card className="bg-gradient-to-br from-yellow-50 to-amber-100 border-2 border-yellow-200">
+            <CardHeader className="text-center pb-3">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <TrendingUp className="h-5 w-5 text-yellow-600" />
+                <CardTitle className="text-lg font-bold text-yellow-800">Waiting Sorting</CardTitle>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="text-3xl font-bold text-yellow-900 mb-1">{waitingSortingWeight.toFixed(1)} KG</div>
+                <p className="text-sm text-yellow-600 font-medium">Gross Weight</p>
+                <p className="text-xs text-yellow-500">Net: {waitingSortingNetWeight.toFixed(1)} kg</p>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{totalNetWeight.toFixed(1)} kg</div>
-              <p className="text-xs text-muted-foreground">
-                Weight excluding tare
-              </p>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(waitingSortingPPM.Ag)}</div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                  <div className="text-xs text-gray-500">ppm</div>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(waitingSortingPPM.Pd)}</div>
+                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                  <div className="text-xs text-blue-500">ppm</div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(waitingSortingPPM.Au)}</div>
+                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                  <div className="text-xs text-yellow-500">ppm</div>
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(waitingSortingPPM.Cu)}%</div>
+                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                  <div className="text-xs text-orange-500">percent</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ready Items</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-green-600" />
+          {/* Unknown Items */}
+          <Card className="bg-gradient-to-br from-gray-50 to-slate-100 border-2 border-gray-200">
+            <CardHeader className="text-center pb-3">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Package className="h-5 w-5 text-gray-600" />
+                <CardTitle className="text-lg font-bold text-gray-800">Unknown Items</CardTitle>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-1">{unknownWeight.toFixed(1)} KG</div>
+                <p className="text-sm text-gray-600 font-medium">Gross Weight</p>
+                <p className="text-xs text-gray-500">Net: {unknownNetWeight.toFixed(1)} kg</p>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{readyWeight.toFixed(1)} kg</div>
-              <p className="text-xs text-muted-foreground">
-                Ready for processing
-              </p>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(unknownPPM.Ag)}</div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                  <div className="text-xs text-gray-500">ppm</div>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(unknownPPM.Pd)}</div>
+                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                  <div className="text-xs text-blue-500">ppm</div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(unknownPPM.Au)}</div>
+                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                  <div className="text-xs text-yellow-500">ppm</div>
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(unknownPPM.Cu)}%</div>
+                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                  <div className="text-xs text-orange-500">percent</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-
-          <PPMDisplay ppmTotals={ppmTotals} totalWeight={totalNetWeight} totalGrossWeight={totalWeight} />
         </div>
 
         {/* Search and Filter */}
