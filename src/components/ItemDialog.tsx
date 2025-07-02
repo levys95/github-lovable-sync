@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MetalContentDisplay } from './MetalContent';
 
 interface InventoryItem {
   id: string;
@@ -98,6 +98,12 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                 ))}
               </SelectContent>
             </Select>
+            {formData.category && (
+              <div className="mt-2">
+                <Label className="text-sm text-gray-600">Metal Content:</Label>
+                <MetalContentDisplay category={formData.category} className="mt-1" />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

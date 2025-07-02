@@ -1,8 +1,8 @@
-
 import { Edit, Trash2, MapPin, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { MetalContentDisplay } from './MetalContent';
 
 interface InventoryItem {
   id: string;
@@ -56,6 +56,7 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
                 {formatCondition(item.condition)}
               </Badge>
             </div>
+            <MetalContentDisplay category={item.category} />
           </div>
           <div className="flex space-x-1">
             <Button variant="ghost" size="sm" onClick={onEdit}>
