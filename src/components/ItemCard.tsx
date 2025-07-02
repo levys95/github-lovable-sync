@@ -1,8 +1,8 @@
 
-import { Edit, Trash2, MapPin, Calendar, Weight, Package } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Edit2, Trash2, Package, MapPin, Calendar, Weight, User, Hash } from 'lucide-react';
 import { MetalContentDisplay } from './MetalContent';
 
 interface InventoryItem {
@@ -29,16 +29,18 @@ interface ItemCardProps {
 }
 
 export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
+  const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+  
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case 'ready': return 'bg-green-100 text-green-800 border-green-200';
-      case 'waiting-sorting': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'unknown': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'ready': return 'bg-green-100 text-green-800';
+      case 'waiting-sorting': return 'bg-yellow-100 text-yellow-800';
+      case 'unknown': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const formatCondition = (condition: string) => {
+  const getConditionText = (condition: string) => {
     switch (condition) {
       case 'ready': return 'Ready';
       case 'waiting-sorting': return 'Waiting Sorting';
@@ -47,119 +49,71 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
     }
   };
 
-  const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
-  const hasTareWeight = (item.bigBagWeight && item.bigBagWeight > 0) || (item.palletWeight && item.palletWeight > 0);
-
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <CardTitle className="text-lg mb-2">{item.name}</CardTitle>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline" className="text-xs">
-                {item.category}
-              </Badge>
-              <Badge className={`text-xs ${getConditionColor(item.condition)}`}>
-                {formatCondition(item.condition)}
-              </Badge>
-            </div>
-            <MetalContentDisplay category={item.category} />
+            <h3 className="font-semibold text-lg text-gray-900 mb-1">{item.name}</h3>
+            <p className="text-sm text-gray-600 mb-2">{item.category}</p>
+            {item.description && (
+              <p className="text-xs text-gray-500 mb-2">{item.description}</p>
+            )}
           </div>
-          <div className="flex space-x-1">
-            <Button variant="ghost" size="sm" onClick={onEdit}>
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={onDelete} className="text-red-600 hover:text-red-700">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <Badge className={`text-xs ${getConditionColor(item.condition)}`}>
+            {getConditionText(item.condition)}
+          </Badge>
         </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          {/* Shipment Number */}
-          {item.shipmentNumber && (
-            <div className="flex items-center text-sm text-gray-600">
-              <Package className="h-4 w-4 mr-1" />
-              <span>Shipment: {item.shipmentNumber}</span>
-            </div>
-          )}
 
-          {/* Images */}
-          {item.images && item.images.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-sm font-medium text-gray-700">Photos ({item.images.length})</span>
-              <div className="grid grid-cols-2 gap-2">
-                {item.images.slice(0, 4).map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`${item.name} photo ${index + 1}`}
-                    className="w-full h-20 object-cover rounded border"
-                  />
-                ))}
-                {item.images.length > 4 && (
-                  <div className="w-full h-20 bg-gray-100 rounded border flex items-center justify-center">
-                    <span className="text-xs text-gray-500">+{item.images.length - 4} more</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Weight Information */}
-          <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Weight className="h-4 w-4 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">Weight Information</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Total Weight:</span>
-              <span className="font-semibold">{item.quantity} kg</span>
-            </div>
-            
-            {hasTareWeight && (
-              <>
-                {item.bigBagWeight && item.bigBagWeight > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Big Bag:</span>
-                    <span className="text-sm">-{item.bigBagWeight} kg</span>
-                  </div>
-                )}
-                
-                {item.palletWeight && item.palletWeight > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Pallet:</span>
-                    <span className="text-sm">-{item.palletWeight} kg</span>
-                  </div>
-                )}
-                
-                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                  <span className="text-sm font-medium text-green-700">Net Weight:</span>
-                  <span className="font-bold text-green-700">{netWeight.toFixed(2)} kg</span>
-                </div>
-              </>
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center text-sm text-gray-600">
+            <Weight className="h-4 w-4 mr-2" />
+            <span>Total: {item.quantity}kg</span>
+            {(item.bigBagWeight || item.palletWeight) && (
+              <span className="ml-2 text-xs text-gray-500">
+                (Net: {netWeight.toFixed(1)}kg)
+              </span>
             )}
           </div>
           
           <div className="flex items-center text-sm text-gray-600">
-            <MapPin className="h-4 w-4 mr-1" />
+            <MapPin className="h-4 w-4 mr-2" />
             <span>{item.location}</span>
           </div>
           
           <div className="flex items-center text-sm text-gray-600">
-            <Calendar className="h-4 w-4 mr-1" />
-            <span>Added: {new Date(item.dateAdded).toLocaleDateString()}</span>
+            <Calendar className="h-4 w-4 mr-2" />
+            <span>{new Date(item.dateAdded).toLocaleDateString()}</span>
           </div>
-          
-          {item.description && (
-            <div className="pt-2 border-t">
-              <p className="text-sm text-gray-600">{item.description}</p>
+
+          {item.brand && (
+            <div className="flex items-center text-sm text-gray-600">
+              <User className="h-4 w-4 mr-2" />
+              <span>{item.brand}</span>
+              {item.model && <span className="ml-1">- {item.model}</span>}
             </div>
           )}
+
+          {item.shipmentNumber && (
+            <div className="flex items-center text-sm text-gray-600">
+              <Hash className="h-4 w-4 mr-2" />
+              <span>{item.shipmentNumber}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Metal Content Display */}
+        <div className="mb-3">
+          <MetalContentDisplay category={item.category} className="mb-2" />
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" size="sm" onClick={onEdit}>
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={onDelete} className="text-red-600 hover:text-red-700">
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </CardContent>
     </Card>
