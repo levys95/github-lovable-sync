@@ -34,6 +34,11 @@ interface ItemDialogProps {
   categories: string[];
 }
 
+const locationZones = [
+  'A-1', 'A-2', 'A-3', 'A-4', 'A-5', 'A-6', 'A-7', 'A-8', 'A-9',
+  'B-1', 'B-2', 'B-3', 'B-4', 'B-5', 'B-6'
+];
+
 export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDialogProps) => {
   const [formData, setFormData] = useState({
     category: '',
@@ -220,14 +225,19 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="e.g., Warehouse A-1, Storage Room B"
-                  required
-                />
+                <Label htmlFor="location">Location Zone</Label>
+                <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location zone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locationZones.map(zone => (
+                      <SelectItem key={zone} value={zone}>
+                        {zone}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
