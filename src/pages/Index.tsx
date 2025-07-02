@@ -216,7 +216,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <PPMDisplay ppmTotals={ppmTotals} totalWeight={totalNetWeight} />
+          <PPMDisplay ppmTotals={ppmTotals} totalWeight={totalNetWeight} totalGrossWeight={totalWeight} />
         </div>
 
         {/* Search and Filter */}

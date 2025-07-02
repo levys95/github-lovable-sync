@@ -7,9 +7,10 @@ import { PPMTotals, formatPPMValue } from '@/utils/ppmCalculations';
 interface PPMDisplayProps {
   ppmTotals: PPMTotals;
   totalWeight: number;
+  totalGrossWeight: number;
 }
 
-export const PPMDisplay = ({ ppmTotals, totalWeight }: PPMDisplayProps) => {
+export const PPMDisplay = ({ ppmTotals, totalWeight, totalGrossWeight }: PPMDisplayProps) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -18,8 +19,8 @@ export const PPMDisplay = ({ ppmTotals, totalWeight }: PPMDisplayProps) => {
       </CardHeader>
       <CardContent>
         <div className="mb-3 text-center">
-          <div className="text-lg font-bold text-gray-900">{totalWeight.toFixed(1)} KG</div>
-          <p className="text-xs text-gray-500">Total Net Weight</p>
+          <div className="text-lg font-bold text-gray-900">{totalGrossWeight.toFixed(1)} KG</div>
+          <p className="text-xs text-gray-500">Total Weight</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
