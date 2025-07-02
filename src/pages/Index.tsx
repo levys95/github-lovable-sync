@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
+import { Plus, Search, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -175,7 +175,11 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <Package className="h-8 w-8 text-blue-600" />
+              <img 
+                src="/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png" 
+                alt="SFDE Logo" 
+                className="h-8 w-auto"
+              />
               <h1 className="text-2xl font-bold text-gray-900">E-Waste Warehouse Manager</h1>
             </div>
             <Button onClick={() => setIsDialogOpen(true)} className="flex items-center space-x-2">
@@ -277,7 +281,7 @@ const Index = () => {
           <Card className="bg-gradient-to-br from-gray-50 to-slate-100 border-2 border-gray-200">
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <Package className="h-5 w-5 text-gray-600" />
+                <AlertTriangle className="h-5 w-5 text-gray-600" />
                 <CardTitle className="text-lg font-bold text-gray-800">Unknown Items</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
