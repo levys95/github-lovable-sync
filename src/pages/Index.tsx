@@ -20,6 +20,7 @@ interface InventoryItem {
   model?: string;
   bigBagWeight?: number;
   palletWeight?: number;
+  images?: string[];
 }
 
 const Index = () => {
@@ -36,7 +37,8 @@ const Index = () => {
       model: 'iPhone 12',
       description: 'Working smartphones ready for refurbishment',
       bigBagWeight: 1.2,
-      palletWeight: 0.8
+      palletWeight: 0.8,
+      images: []
     },
     {
       id: '2',
@@ -48,7 +50,8 @@ const Index = () => {
       dateAdded: '2024-01-20',
       brand: 'Samsung',
       description: 'Touch screens for mobile devices',
-      bigBagWeight: 0.5
+      bigBagWeight: 0.5,
+      images: []
     },
     {
       id: '3',
@@ -58,7 +61,8 @@ const Index = () => {
       quantity: 12.1,
       location: 'Warehouse C-1',
       dateAdded: '2024-01-18',
-      description: 'Various Chinese phone components'
+      description: 'Various Chinese phone components',
+      images: []
     }
   ]);
 

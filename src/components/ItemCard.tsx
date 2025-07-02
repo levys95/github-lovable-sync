@@ -1,4 +1,3 @@
-
 import { Edit, Trash2, MapPin, Calendar, Weight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +17,7 @@ interface InventoryItem {
   model?: string;
   bigBagWeight?: number;
   palletWeight?: number;
+  images?: string[];
 }
 
 interface ItemCardProps {
@@ -77,6 +77,28 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
       
       <CardContent className="pt-0">
         <div className="space-y-3">
+          {/* Images */}
+          {item.images && item.images.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-gray-700">Photos ({item.images.length})</span>
+              <div className="grid grid-cols-2 gap-2">
+                {item.images.slice(0, 4).map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`${item.name} photo ${index + 1}`}
+                    className="w-full h-20 object-cover rounded border"
+                  />
+                ))}
+                {item.images.length > 4 && (
+                  <div className="w-full h-20 bg-gray-100 rounded border flex items-center justify-center">
+                    <span className="text-xs text-gray-500">+{item.images.length - 4} more</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Weight Information */}
           <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
