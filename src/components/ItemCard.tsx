@@ -54,8 +54,7 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-900 mb-1">{item.name}</h3>
-            <p className="text-sm text-gray-600 mb-2">{item.category}</p>
+            <h3 className="font-semibold text-lg text-gray-900 mb-1">{item.category}</h3>
             {item.description && (
               <p className="text-xs text-gray-500 mb-2">{item.description}</p>
             )}
