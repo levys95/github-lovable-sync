@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ interface InventoryItem {
   bigBagWeight?: number;
   palletWeight?: number;
   images?: string[];
+  shipmentNumber?: string;
 }
 
 const Index = () => {
@@ -38,7 +40,8 @@ const Index = () => {
       description: 'Working smartphones ready for refurbishment',
       bigBagWeight: 1.2,
       palletWeight: 0.8,
-      images: []
+      images: [],
+      shipmentNumber: 'SH-2024-001'
     },
     {
       id: '2',
@@ -51,7 +54,8 @@ const Index = () => {
       brand: 'Samsung',
       description: 'Touch screens for mobile devices',
       bigBagWeight: 0.5,
-      images: []
+      images: [],
+      shipmentNumber: 'SH-2024-002'
     },
     {
       id: '3',
@@ -62,7 +66,8 @@ const Index = () => {
       location: 'Warehouse C-1',
       dateAdded: '2024-01-18',
       description: 'Various Chinese phone components',
-      images: []
+      images: [],
+      shipmentNumber: 'SH-2024-003'
     }
   ]);
 
@@ -96,7 +101,8 @@ const Index = () => {
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.model?.toLowerCase().includes(searchTerm.toLowerCase());
+                         item.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.shipmentNumber?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -212,7 +218,7 @@ const Index = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search items, brands, or models..."
+              placeholder="Search items, brands, models, or shipment numbers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"

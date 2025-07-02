@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ interface InventoryItem {
   bigBagWeight?: number;
   palletWeight?: number;
   images?: string[];
+  shipmentNumber?: string;
 }
 
 interface ItemDialogProps {
@@ -42,7 +44,8 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
     description: '',
     bigBagWeight: 0,
     palletWeight: 0,
-    images: [] as string[]
+    images: [] as string[],
+    shipmentNumber: ''
   });
 
   useEffect(() => {
@@ -56,7 +59,8 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         description: item.description || '',
         bigBagWeight: item.bigBagWeight || 0,
         palletWeight: item.palletWeight || 0,
-        images: item.images || []
+        images: item.images || [],
+        shipmentNumber: item.shipmentNumber || ''
       });
     } else if (isOpen) {
       // Reset form when opening for new item
@@ -69,7 +73,8 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         description: '',
         bigBagWeight: 0,
         palletWeight: 0,
-        images: []
+        images: [],
+        shipmentNumber: ''
       });
     }
   }, [item, isOpen]);
@@ -149,6 +154,16 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                     required
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="shipmentNumber">Shipment Number</Label>
+                <Input
+                  id="shipmentNumber"
+                  value={formData.shipmentNumber}
+                  onChange={(e) => handleInputChange('shipmentNumber', e.target.value)}
+                  placeholder="e.g., SH-2024-001"
+                />
               </div>
 
               {/* Weight Section */}
