@@ -34,12 +34,14 @@ export const calculateTotalPPM = (items: Array<{
   return totals;
 };
 
-export const formatPPMValue = (value: number): string => {
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}kg`;
-  } else if (value >= 1) {
-    return `${value.toFixed(1)}g`;
+export const formatPPMValue = (value: number, totalWeight: number, metalType: 'Ag' | 'Au' | 'Pd' | 'Cu'): string => {
+  if (metalType === 'Cu') {
+    // For Copper, show as percentage
+    const percentage = (value * 1000) / totalWeight / 10; // Convert grams to percentage
+    return `${percentage.toFixed(2)}%`;
   } else {
-    return `${(value * 1000).toFixed(0)}mg`;
+    // For Ag, Au, Pd show as PPM
+    const ppm = (value * 1000) / totalWeight; // Convert grams to PPM (mg/kg)
+    return `${ppm.toFixed(0)} ppm`;
   }
 };
