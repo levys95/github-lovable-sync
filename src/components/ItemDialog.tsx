@@ -12,7 +12,7 @@ interface InventoryItem {
   id: string;
   name: string;
   category: string;
-  condition: 'working' | 'damaged' | 'for-parts';
+  condition: 'ready' | 'waiting-sorting' | 'unknown';
   quantity: number;
   location: string;
   dateAdded: string;
@@ -34,7 +34,7 @@ interface ItemDialogProps {
 export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDialogProps) => {
   const [formData, setFormData] = useState({
     category: '',
-    condition: 'working' as 'working' | 'damaged' | 'for-parts',
+    condition: 'ready' as 'ready' | 'waiting-sorting' | 'unknown',
     quantity: 1,
     location: '',
     dateAdded: new Date().toISOString().split('T')[0],
@@ -59,7 +59,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
       // Reset form when opening for new item
       setFormData({
         category: '',
-        condition: 'working',
+        condition: 'ready',
         quantity: 1,
         location: '',
         dateAdded: new Date().toISOString().split('T')[0],
@@ -125,9 +125,9 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="working">Working</SelectItem>
-                  <SelectItem value="damaged">Damaged</SelectItem>
-                  <SelectItem value="for-parts">For Parts</SelectItem>
+                  <SelectItem value="ready">Ready</SelectItem>
+                  <SelectItem value="waiting-sorting">Waiting Sorting</SelectItem>
+                  <SelectItem value="unknown">Unknown</SelectItem>
                 </SelectContent>
               </Select>
             </div>

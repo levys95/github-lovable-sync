@@ -9,7 +9,7 @@ interface InventoryItem {
   id: string;
   name: string;
   category: string;
-  condition: 'working' | 'damaged' | 'for-parts';
+  condition: 'ready' | 'waiting-sorting' | 'unknown';
   quantity: number;
   location: string;
   dateAdded: string;
@@ -29,18 +29,18 @@ interface ItemCardProps {
 export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case 'working': return 'bg-green-100 text-green-800 border-green-200';
-      case 'damaged': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'for-parts': return 'bg-red-100 text-red-800 border-red-200';
+      case 'ready': return 'bg-green-100 text-green-800 border-green-200';
+      case 'waiting-sorting': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'unknown': return 'bg-red-100 text-red-800 border-red-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const formatCondition = (condition: string) => {
     switch (condition) {
-      case 'working': return 'Working';
-      case 'damaged': return 'Damaged';
-      case 'for-parts': return 'For Parts';
+      case 'ready': return 'Ready';
+      case 'waiting-sorting': return 'Waiting Sorting';
+      case 'unknown': return 'Unknown';
       default: return condition;
     }
   };

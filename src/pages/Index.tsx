@@ -11,7 +11,7 @@ interface InventoryItem {
   id: string;
   name: string;
   category: string;
-  condition: 'working' | 'damaged' | 'for-parts';
+  condition: 'ready' | 'waiting-sorting' | 'unknown';
   quantity: number;
   location: string;
   dateAdded: string;
@@ -28,7 +28,7 @@ const Index = () => {
       id: '1',
       name: 'iPhone 12',
       category: 'Smartphones',
-      condition: 'working',
+      condition: 'ready',
       quantity: 15.5,
       location: 'Warehouse A-1',
       dateAdded: '2024-01-15',
@@ -42,7 +42,7 @@ const Index = () => {
       id: '2',
       name: 'Samsung Galaxy Screen',
       category: 'Gsm a touches',
-      condition: 'damaged',
+      condition: 'waiting-sorting',
       quantity: 8.3,
       location: 'Warehouse B-2',
       dateAdded: '2024-01-20',
@@ -54,7 +54,7 @@ const Index = () => {
       id: '3',
       name: 'Generic Phone Parts',
       category: 'China Phone',
-      condition: 'for-parts',
+      condition: 'unknown',
       quantity: 12.1,
       location: 'Warehouse C-1',
       dateAdded: '2024-01-18',
@@ -102,8 +102,8 @@ const Index = () => {
     const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
     return sum + netWeight;
   }, 0);
-  const workingWeight = items.filter(item => item.condition === 'working').reduce((sum, item) => sum + item.quantity, 0);
-  const damagedWeight = items.filter(item => item.condition === 'damaged').reduce((sum, item) => sum + item.quantity, 0);
+  const readyWeight = items.filter(item => item.condition === 'ready').reduce((sum, item) => sum + item.quantity, 0);
+  const waitingSortingWeight = items.filter(item => item.condition === 'waiting-sorting').reduce((sum, item) => sum + item.quantity, 0);
 
   const handleAddItem = (newItem: Omit<InventoryItem, 'id'>) => {
     const item: InventoryItem = {
@@ -178,13 +178,13 @@ const Index = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Working Items</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <CardTitle className="text-sm font-medium">Ready Items</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{workingWeight.toFixed(1)} kg</div>
+              <div className="text-2xl font-bold text-green-600">{readyWeight.toFixed(1)} kg</div>
               <p className="text-xs text-muted-foreground">
-                Ready for reuse
+                Ready for processing
               </p>
             </CardContent>
           </Card>
