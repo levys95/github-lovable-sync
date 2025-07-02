@@ -12,36 +12,41 @@ interface PPMDisplayProps {
 
 export const PPMDisplay = ({ ppmTotals, totalWeight, totalGrossWeight }: PPMDisplayProps) => {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Total Metal Content</CardTitle>
-        <Zap className="h-4 w-4 text-yellow-600" />
-      </CardHeader>
-      <CardContent>
-        <div className="mb-3 text-center">
-          <div className="text-lg font-bold text-gray-900">{totalGrossWeight.toFixed(1)} KG</div>
-          <p className="text-xs text-gray-500">Total Weight</p>
+    <Card className="bg-gradient-to-br from-slate-50 to-gray-100 border-2">
+      <CardHeader className="text-center pb-3">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Zap className="h-5 w-5 text-amber-500" />
+          <CardTitle className="text-lg font-bold text-gray-800">Total Metal Content</CardTitle>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Badge variant="outline" className="text-xs bg-gray-100 w-full justify-between">
-              <span>Ag:</span>
-              <span className="font-semibold">{formatPPMValue(ppmTotals.Ag, totalWeight, 'Ag')}</span>
-            </Badge>
-            <Badge variant="outline" className="text-xs bg-yellow-100 w-full justify-between">
-              <span>Au:</span>
-              <span className="font-semibold">{formatPPMValue(ppmTotals.Au, totalWeight, 'Au')}</span>
-            </Badge>
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="text-3xl font-bold text-gray-900 mb-1">{totalGrossWeight.toFixed(1)} KG</div>
+          <p className="text-sm text-gray-500 font-medium">Total Weight</p>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-gray-50 rounded-lg p-3 text-center border">
+            <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmTotals.Ag)}</div>
+            <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+            <div className="text-xs text-gray-500">ppm</div>
           </div>
-          <div className="space-y-1">
-            <Badge variant="outline" className="text-xs bg-blue-100 w-full justify-between">
-              <span>Pd:</span>
-              <span className="font-semibold">{formatPPMValue(ppmTotals.Pd, totalWeight, 'Pd')}</span>
-            </Badge>
-            <Badge variant="outline" className="text-xs bg-orange-100 w-full justify-between">
-              <span>Cu:</span>
-              <span className="font-semibold">{formatPPMValue(ppmTotals.Cu, totalWeight, 'Cu')}</span>
-            </Badge>
+          
+          <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+            <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmTotals.Pd)}</div>
+            <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+            <div className="text-xs text-blue-500">ppm</div>
+          </div>
+          
+          <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+            <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmTotals.Au)}</div>
+            <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+            <div className="text-xs text-yellow-500">ppm</div>
+          </div>
+          
+          <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+            <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmTotals.Cu)}%</div>
+            <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+            <div className="text-xs text-orange-500">percent</div>
           </div>
         </div>
       </CardContent>
