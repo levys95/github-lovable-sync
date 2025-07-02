@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Package, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -131,10 +131,18 @@ const Index = () => {
     return sum + netWeight;
   }, 0);
 
+  // Calculate total statistics
+  const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalNetWeight = items.reduce((sum, item) => {
+    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    return sum + netWeight;
+  }, 0);
+
   // Calculate PPM for each condition
   const readyPPM = calculateTotalPPM(readyItems);
   const waitingSortingPPM = calculateTotalPPM(waitingSortingItems);
   const unknownPPM = calculateTotalPPM(unknownItems);
+  const totalPPM = calculateTotalPPM(items);
 
   const handleAddItem = (newItem: Omit<InventoryItem, 'id'>) => {
     const item: InventoryItem = {
@@ -180,7 +188,7 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Ready Items */}
           <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-200">
             <CardHeader className="text-center pb-3">
@@ -300,6 +308,48 @@ const Index = () => {
                 
                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(unknownPPM.Cu)}%</div>
+                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                  <div className="text-xs text-orange-500">percent</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Total Items */}
+          <Card className="bg-gradient-to-br from-purple-50 to-violet-100 border-2 border-purple-200">
+            <CardHeader className="text-center pb-3">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Zap className="h-5 w-5 text-purple-600" />
+                <CardTitle className="text-lg font-bold text-purple-800">Total Items</CardTitle>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="text-3xl font-bold text-purple-900 mb-1">{totalWeight.toFixed(1)} KG</div>
+                <p className="text-sm text-purple-600 font-medium">Gross Weight</p>
+                <p className="text-xs text-purple-500">Net: {totalNetWeight.toFixed(1)} kg</p>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(totalPPM.Ag)}</div>
+                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                  <div className="text-xs text-gray-500">ppm</div>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(totalPPM.Pd)}</div>
+                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                  <div className="text-xs text-blue-500">ppm</div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(totalPPM.Au)}</div>
+                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                  <div className="text-xs text-yellow-500">ppm</div>
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(totalPPM.Cu)}%</div>
                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
                   <div className="text-xs text-orange-500">percent</div>
                 </div>
