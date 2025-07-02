@@ -22,9 +22,9 @@ export const calculateTotalPPM = (items: Array<{
       // Calculate net weight (excluding tare weights)
       const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
       
-      // Calculate PPM contribution from this item
-      // PPM values are per kg, so multiply by net weight in kg
-      totals.Ag += (metalContent.Ag * netWeight) / 1000; // Convert ppm to grams
+      // Calculate metal content in grams
+      // PPM values are per kg, so multiply by net weight and divide by 1000 to get grams
+      totals.Ag += (metalContent.Ag * netWeight) / 1000;
       totals.Au += (metalContent.Au * netWeight) / 1000;
       totals.Pd += (metalContent.Pd * netWeight) / 1000;
       totals.Cu += (metalContent.Cu * netWeight) / 1000;
