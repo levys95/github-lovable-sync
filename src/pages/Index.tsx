@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ItemDialog } from '@/components/ItemDialog';
 import { ItemCard } from '@/components/ItemCard';
+import { PPMDisplay } from '@/components/PPMDisplay';
+import { calculateTotalPPM } from '@/utils/ppmCalculations';
 
 interface InventoryItem {
   id: string;
@@ -115,6 +116,9 @@ const Index = () => {
   const readyWeight = items.filter(item => item.condition === 'ready').reduce((sum, item) => sum + item.quantity, 0);
   const waitingSortingWeight = items.filter(item => item.condition === 'waiting-sorting').reduce((sum, item) => sum + item.quantity, 0);
 
+  // Calculate PPM totals
+  const ppmTotals = calculateTotalPPM(items);
+
   const handleAddItem = (newItem: Omit<InventoryItem, 'id'>) => {
     const item: InventoryItem = {
       ...newItem,
@@ -159,7 +163,7 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Weight</CardTitle>
@@ -211,6 +215,8 @@ const Index = () => {
               </p>
             </CardContent>
           </Card>
+
+          <PPMDisplay ppmTotals={ppmTotals} />
         </div>
 
         {/* Search and Filter */}
