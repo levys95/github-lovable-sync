@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MetalContentDisplay } from './MetalContent';
 import { ImageCapture } from './ImageCapture';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface InventoryItem {
   id: string;
@@ -40,6 +40,8 @@ const locationZones = [
 ];
 
 export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDialogProps) => {
+  const { t } = useLanguage();
+  
   const [formData, setFormData] = useState({
     category: '',
     condition: 'ready' as 'ready' | 'waiting-sorting' | 'unknown',
@@ -104,7 +106,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {item ? 'Modifier Article' : 'Ajouter Nouvel Article'}
+            {item ? t('dialog.edit') : t('dialog.add')}
           </DialogTitle>
         </DialogHeader>
         
@@ -113,10 +115,10 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
             {/* Left Column */}
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="category">Catégorie</Label>
+                <Label htmlFor="category">{t('dialog.category')}</Label>
                 <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner catégorie" />
+                    <SelectValue placeholder={t('dialog.selectCategory')} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.filter(cat => cat !== 'all').map(category => (
@@ -128,7 +130,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                 </Select>
                 {formData.category && (
                   <div className="mt-2">
-                    <Label className="text-sm text-gray-600">Contenu Métallique:</Label>
+                    <Label className="text-sm text-gray-600">{t('dialog.metalContent')}</Label>
                     <MetalContentDisplay category={formData.category} className="mt-1" />
                   </div>
                 )}
@@ -136,21 +138,21 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="condition">État</Label>
+                  <Label htmlFor="condition">{t('dialog.condition')}</Label>
                   <Select value={formData.condition} onValueChange={(value) => handleInputChange('condition', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ready">Prêt</SelectItem>
-                      <SelectItem value="waiting-sorting">En Attente de Tri</SelectItem>
-                      <SelectItem value="unknown">Inconnu</SelectItem>
+                      <SelectItem value="ready">{t('dialog.ready')}</SelectItem>
+                      <SelectItem value="waiting-sorting">{t('dialog.waitingSorting')}</SelectItem>
+                      <SelectItem value="unknown">{t('dialog.unknown')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="dateAdded">Date d'Ajout</Label>
+                  <Label htmlFor="dateAdded">{t('dialog.dateAdded')}</Label>
                   <Input
                     id="dateAdded"
                     type="date"
@@ -162,7 +164,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="shipmentNumber">Numéro d'Expédition</Label>
+                <Label htmlFor="shipmentNumber">{t('dialog.shipmentNumber')}</Label>
                 <Input
                   id="shipmentNumber"
                   value={formData.shipmentNumber}
@@ -173,11 +175,11 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
 
               {/* Weight Section */}
               <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
-                <h3 className="font-medium text-gray-900">Informations de Poids (kg)</h3>
+                <h3 className="font-medium text-gray-900">{t('dialog.weightInfo')}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="quantity">Poids Total (kg)</Label>
+                    <Label htmlFor="quantity">{t('dialog.totalWeight')}</Label>
                     <Input
                       id="quantity"
                       type="number"
@@ -190,7 +192,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="bigBagWeight">Poids Big Bag (kg)</Label>
+                    <Label htmlFor="bigBagWeight">{t('dialog.bigBagWeight')}</Label>
                     <Input
                       id="bigBagWeight"
                       type="number"
@@ -202,7 +204,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="palletWeight">Poids Palette (kg)</Label>
+                    <Label htmlFor="palletWeight">{t('dialog.palletWeight')}</Label>
                     <Input
                       id="palletWeight"
                       type="number"
@@ -217,7 +219,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                 {(formData.bigBagWeight > 0 || formData.palletWeight > 0) && (
                   <div className="pt-2 border-t">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-700">Poids Net:</span>
+                      <span className="text-sm font-medium text-gray-700">{t('dialog.netWeight')}</span>
                       <span className="text-lg font-bold text-green-600">{netWeight.toFixed(2)} kg</span>
                     </div>
                   </div>
@@ -225,10 +227,10 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location">Zone d'Emplacement</Label>
+                <Label htmlFor="location">{t('dialog.location')}</Label>
                 <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner zone d'emplacement" />
+                    <SelectValue placeholder={t('dialog.selectLocation')} />
                   </SelectTrigger>
                   <SelectContent>
                     {locationZones.map(zone => (
@@ -241,12 +243,12 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('dialog.description')}</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Détails supplémentaires sur l'article..."
+                  placeholder={t('dialog.descriptionPlaceholder')}
                   rows={3}
                 />
               </div>
@@ -264,10 +266,10 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
 
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onClose}>
-              Annuler
+              {t('dialog.cancel')}
             </Button>
             <Button type="submit">
-              {item ? 'Mettre à Jour Article' : 'Ajouter Article'}
+              {item ? t('dialog.update') : t('dialog.add')}
             </Button>
           </div>
         </form>

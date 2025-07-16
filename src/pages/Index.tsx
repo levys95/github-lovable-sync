@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { ItemDialog } from '@/components/ItemDialog';
 import { ItemCard } from '@/components/ItemCard';
 import { PPMDisplay } from '@/components/PPMDisplay';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { calculateTotalPPM } from '@/utils/ppmCalculations';
 
 interface InventoryItem {
@@ -28,6 +29,8 @@ interface InventoryItem {
 }
 
 const Index = () => {
+  const { t } = useLanguage();
+  
   const [items, setItems] = useState<InventoryItem[]>([
     {
       id: '1',
@@ -181,12 +184,15 @@ const Index = () => {
                 alt="Logo SFDE" 
                 className="h-8 w-auto"
               />
-              <h1 className="text-2xl font-bold text-gray-900">Gestionnaire Entrepôt E-Déchets</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t('header.title')}</h1>
             </div>
-            <Button onClick={() => setIsDialogOpen(true)} className="flex items-center space-x-2">
-              <Plus className="h-4 w-4" />
-              <span>Ajouter Article</span>
-            </Button>
+            <div className="flex items-center space-x-3">
+              <LanguageSelector />
+              <Button onClick={() => setIsDialogOpen(true)} className="flex items-center space-x-2">
+                <Plus className="h-4 w-4" />
+                <span>{t('header.addItem')}</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -199,12 +205,12 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <AlertTriangle className="h-5 w-5 text-green-600" />
-                <CardTitle className="text-lg font-bold text-green-800">Articles Prêts</CardTitle>
+                <CardTitle className="text-lg font-bold text-green-800">{t('stats.ready')}</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-green-900 mb-1">{readyWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-green-600 font-medium">Poids Brut</p>
-                <p className="text-xs text-green-500">Net: {readyNetWeight.toFixed(1)} kg</p>
+                <p className="text-sm text-green-600 font-medium">{t('stats.grossWeight')}</p>
+                <p className="text-xs text-green-500">{t('stats.netWeight')}: {readyNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -241,12 +247,12 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <TrendingUp className="h-5 w-5 text-yellow-600" />
-                <CardTitle className="text-lg font-bold text-yellow-800">En Attente de Tri</CardTitle>
+                <CardTitle className="text-lg font-bold text-yellow-800">{t('stats.waiting')}</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-yellow-900 mb-1">{waitingSortingWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-yellow-600 font-medium">Poids Brut</p>
-                <p className="text-xs text-yellow-500">Net: {waitingSortingNetWeight.toFixed(1)} kg</p>
+                <p className="text-sm text-yellow-600 font-medium">{t('stats.grossWeight')}</p>
+                <p className="text-xs text-yellow-500">{t('stats.netWeight')}: {waitingSortingNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -283,12 +289,12 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <AlertTriangle className="h-5 w-5 text-gray-600" />
-                <CardTitle className="text-lg font-bold text-gray-800">Articles Inconnus</CardTitle>
+                <CardTitle className="text-lg font-bold text-gray-800">{t('stats.unknown')}</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-gray-900 mb-1">{unknownWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-gray-600 font-medium">Poids Brut</p>
-                <p className="text-xs text-gray-500">Net: {unknownNetWeight.toFixed(1)} kg</p>
+                <p className="text-sm text-gray-600 font-medium">{t('stats.grossWeight')}</p>
+                <p className="text-xs text-gray-500">{t('stats.netWeight')}: {unknownNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -325,12 +331,12 @@ const Index = () => {
             <CardHeader className="text-center pb-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Zap className="h-5 w-5 text-purple-600" />
-                <CardTitle className="text-lg font-bold text-purple-800">Total Articles</CardTitle>
+                <CardTitle className="text-lg font-bold text-purple-800">{t('stats.total')}</CardTitle>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-3xl font-bold text-purple-900 mb-1">{totalWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-purple-600 font-medium">Poids Brut</p>
-                <p className="text-xs text-purple-500">Net: {totalNetWeight.toFixed(1)} kg</p>
+                <p className="text-sm text-purple-600 font-medium">{t('stats.grossWeight')}</p>
+                <p className="text-xs text-purple-500">{t('stats.netWeight')}: {totalNetWeight.toFixed(1)} kg</p>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -368,7 +374,7 @@ const Index = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Rechercher articles, marques, modèles ou numéros d'expédition..."
+              placeholder={t('search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -379,9 +385,10 @@ const Index = () => {
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            {categories.map(category => (
+            <option value="all">{t('filter.allCategories')}</option>
+            {categories.filter(cat => cat !== 'all').map(category => (
               <option key={category} value={category}>
-                {category === 'all' ? 'Toutes Catégories' : category}
+                {category}
               </option>
             ))}
           </select>
@@ -392,17 +399,17 @@ const Index = () => {
           <Card className="text-center py-12">
             <CardContent>
               <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun article trouvé</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{t('empty.title')}</h3>
               <p className="text-gray-500 mb-4">
                 {searchTerm || selectedCategory !== 'all' 
-                  ? 'Essayez d\'ajuster vos critères de recherche ou de filtrage.'
-                  : 'Commencez par ajouter votre premier article d\'inventaire.'
+                  ? t('empty.description')
+                  : t('empty.descriptionNoItems')
                 }
               </p>
               {!searchTerm && selectedCategory === 'all' && (
                 <Button onClick={() => setIsDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Ajouter Premier Article
+                  {t('empty.addFirst')}
                 </Button>
               )}
             </CardContent>
