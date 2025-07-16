@@ -2,6 +2,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Edit2, Trash2, Package, MapPin, Calendar, Weight, User, Hash } from 'lucide-react';
 import { MetalContentDisplay } from './MetalContent';
 
@@ -121,9 +122,28 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           <Button variant="outline" size="sm" onClick={onEdit}>
             <Edit2 className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={onDelete} className="text-red-600 hover:text-red-700">
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Êtes-vous sûr de vouloir supprimer cet élément "{item.category}" ? Cette action ne peut pas être annulée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={onDelete} className="bg-red-600 hover:bg-red-700">
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>
