@@ -43,7 +43,10 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
   const { t } = useLanguage();
   
   const [formData, setFormData] = useState({
+    name: '',
     category: '',
+    brand: '',
+    model: '',
     condition: 'ready' as 'ready' | 'waiting-sorting' | 'unknown',
     quantity: 1,
     location: '',
@@ -58,7 +61,10 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
   useEffect(() => {
     if (item) {
       setFormData({
+        name: item.name,
         category: item.category,
+        brand: item.brand || '',
+        model: item.model || '',
         condition: item.condition,
         quantity: item.quantity,
         location: item.location,
@@ -72,7 +78,10 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
     } else if (isOpen) {
       // Reset form when opening for new item
       setFormData({
+        name: '',
         category: '',
+        brand: '',
+        model: '',
         condition: 'ready',
         quantity: 1,
         location: '',
@@ -115,6 +124,17 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
             {/* Left Column */}
             <div className="space-y-6">
               <div className="space-y-2">
+                <Label htmlFor="name">Prekės pavadinimas</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Įveskite prekės pavadinimą"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="category">{t('dialog.category')}</Label>
                 <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
                   <SelectTrigger>
@@ -134,6 +154,28 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                     <MetalContentDisplay category={formData.category} className="mt-1" />
                   </div>
                 )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="brand">Prekės ženklas</Label>
+                  <Input
+                    id="brand"
+                    value={formData.brand}
+                    onChange={(e) => handleInputChange('brand', e.target.value)}
+                    placeholder="Įveskite prekės ženklą"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="model">Modelis</Label>
+                  <Input
+                    id="model"
+                    value={formData.model}
+                    onChange={(e) => handleInputChange('model', e.target.value)}
+                    placeholder="Įveskite modelį"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
