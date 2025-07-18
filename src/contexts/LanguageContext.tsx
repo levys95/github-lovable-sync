@@ -56,7 +56,7 @@ const translations = {
     'dialog.descriptionPlaceholder': 'Papildoma informacija apie prekę...',
     'dialog.cancel': 'Atšaukti',
     'dialog.update': 'Atnaujinti Prekę',
-    'dialog.add': 'Pridėti Prekę',
+    'dialog.addItem': 'Pridėti Prekę',
     
     // Confirmation dialog
     'confirm.title': 'Patvirtinti Šalinimą',
@@ -114,7 +114,7 @@ const translations = {
     'dialog.descriptionPlaceholder': 'Détails supplémentaires sur l\'article...',
     'dialog.cancel': 'Annuler',
     'dialog.update': 'Mettre à Jour Article',
-    'dialog.add': 'Ajouter Article',
+    'dialog.addItem': 'Ajouter Article',
     
     // Confirmation dialog
     'confirm.title': 'Confirmer la suppression',

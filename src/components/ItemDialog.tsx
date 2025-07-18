@@ -269,7 +269,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
               {t('dialog.cancel')}
             </Button>
             <Button type="submit">
-              {item ? t('dialog.update') : t('dialog.add')}
+              {item ? t('dialog.update') : t('dialog.addItem')}
             </Button>
           </div>
         </form>

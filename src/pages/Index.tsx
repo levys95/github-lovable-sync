@@ -81,27 +81,9 @@ const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-  const categories = [
-    'all', 
-    'Smartphones', 
-    'Gsm a touches', 
-    'China Phone', 
-    'power supply full', 
-    'hdd full', 
-    '15 au', 
-    '30 au', 
-    '50 au', 
-    '100 au', 
-    '150 au', 
-    '200 au', 
-    '250 au', 
-    '300 au', 
-    '350 au', 
-    '400 au', 
-    '800 au', 
-    '1000 +', 
-    'full cdrom'
-  ];
+  // Generate categories dynamically from existing items
+  const uniqueCategories = Array.from(new Set(items.map(item => item.category)));
+  const categories = ['all', ...uniqueCategories];
 
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
