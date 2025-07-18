@@ -35,16 +35,33 @@ const Index = () => {
   const { toast } = useToast();
   
   const [items, setItems] = useState<InventoryItem[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
+  // Load categories from Supabase
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('name')
+        .order('name');
+
+      if (error) throw error;
+
+      const categoryNames = data?.map(cat => cat.name) || [];
+      setCategories(['all', ...categoryNames]);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
   // Load items from Supabase
   const loadItems = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('inventory_items')
         .select('*')
@@ -78,18 +95,19 @@ const Index = () => {
         description: "Nepavyko užkrauti prekių sąrašo",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
+  const loadData = async () => {
+    setLoading(true);
+    await Promise.all([loadCategories(), loadItems()]);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    loadItems();
+    loadData();
   }, []);
 
-  // Generate categories dynamically from existing items
-  const uniqueCategories = Array.from(new Set(items.map(item => item.category)));
-  const categories = ['all', ...uniqueCategories];
 
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
