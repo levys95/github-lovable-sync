@@ -1,5 +1,4 @@
-
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,16 +11,39 @@ interface ImageCaptureProps {
 
 export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCaptureProps) => {
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    // Detect mobile devices, especially iOS
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      setIsMobile(isMobileDevice || isIOS);
+    };
+    
+    checkMobile();
+  }, []);
+
   const startCamera = async () => {
+    // On mobile devices, especially iOS, prefer the file input method
+    if (isMobile) {
+      handleCameraInput();
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setIsCapturing(true);
@@ -29,7 +51,13 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
     } catch (error) {
       console.error('Error accessing camera:', error);
       // Fallback to camera input for mobile devices
-      cameraInputRef.current?.click();
+      handleCameraInput();
+    }
+  };
+
+  const handleCameraInput = () => {
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
     }
   };
 
@@ -81,6 +109,9 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
         }
       });
     }
+    
+    // Clear the input so the same file can be selected again
+    event.target.value = '';
   };
 
   const removeImage = (index: number) => {
@@ -101,7 +132,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
             disabled={isCapturing || images.length >= maxImages}
           >
             <Camera className="h-4 w-4 mr-1" />
-            Camera
+            {isMobile ? 'Camera' : 'Camera'}
           </Button>
           <Button
             type="button"
@@ -136,7 +167,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
         className="hidden"
       />
 
-      {isCapturing && (
+      {isCapturing && !isMobile && (
         <Card>
           <CardContent className="p-4">
             <div className="relative">
@@ -144,6 +175,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
                 ref={videoRef}
                 autoPlay
                 playsInline
+                muted
                 className="w-full h-64 object-cover rounded-lg bg-black"
               />
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
@@ -189,7 +221,12 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
           <ImageIcon className="mx-auto h-8 w-8 text-gray-400 mb-2" />
           <p className="text-sm text-gray-500">No photos added yet</p>
-          <p className="text-xs text-gray-400">Use camera or upload files to add photos</p>
+          <p className="text-xs text-gray-400">
+            {isMobile 
+              ? 'Tap camera button to take photos' 
+              : 'Use camera or upload files to add photos'
+            }
+          </p>
         </div>
       )}
     </div>
