@@ -14,14 +14,14 @@ interface InventoryItem {
   condition: 'ready' | 'waiting-sorting' | 'unknown';
   quantity: number;
   location: string;
-  dateAdded: string;
+  date_added: string;
   description?: string;
   brand?: string;
   model?: string;
-  bigBagWeight?: number;
-  palletWeight?: number;
+  big_bag_weight?: number;
+  pallet_weight?: number;
   images?: string[];
-  shipmentNumber?: string;
+  shipment_number?: string;
 }
 
 interface ItemCardProps {
@@ -63,10 +63,17 @@ const getConditionText = (condition: InventoryItem['condition']): string => {
   }
 };
 
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR');
+};
+
 export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
   const { t } = useLanguage();
   
-  const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+  // Calculate net weight
+  const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
+  
   const conditionColor = getConditionColor(item.condition);
   const conditionIcon = getConditionIcon(item.condition);
   const conditionText = getConditionText(item.condition);
@@ -76,56 +83,80 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
       <CardContent className="p-6">
         {/* Header Section */}
         <div className="mb-4">
-          <div className="text-lg font-semibold">{item.name}</div>
+          <div className="text-lg font-semibold text-gray-900">{item.name}</div>
           <div className="text-sm text-gray-500">
             <MapPin className="inline-block h-4 w-4 mr-1 align-middle" />
             {item.location}
           </div>
         </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div>
-            <div className="text-xs font-medium text-gray-600">Quantité:</div>
-            <div className="text-sm">{item.quantity} kg</div>
+        {/* Category and Brands Section */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2 mb-2">
+            <Badge variant="secondary" className="text-xs">
+              {item.category}
+            </Badge>
+            
+            {item.brand && (
+              <Badge variant="outline" className="text-xs">
+                {item.brand}
+              </Badge>
+            )}
+            
+            {item.shipment_number && (
+              <Badge variant="outline">{item.shipment_number}</Badge>
+            )}
           </div>
-          <div>
-            <div className="text-xs font-medium text-gray-600">Date d'Ajout:</div>
-            <div className="text-sm">
-              <Calendar className="inline-block h-4 w-4 mr-1 align-middle" />
-              {item.dateAdded}
+          
+          {/* Condition Badge */}
+          <Badge className={`${conditionColor}`}>
+            {conditionIcon}
+            {conditionText}
+          </Badge>
+        </div>
+
+        {/* Weight Information */}
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 gap-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Poids Total:</span>
+              <span className="text-lg font-bold text-gray-900">{item.quantity.toFixed(2)} kg</span>
+            </div>
+            
+            {/* Show breakdown if bag or pallet weights exist */}
+            <div className="text-xs text-gray-600 space-y-1">
+              {item.big_bag_weight && item.big_bag_weight > 0 && (
+                <div className="text-xs text-gray-500">Big Bag: {item.big_bag_weight}kg</div>
+              )}
+              {item.pallet_weight && item.pallet_weight > 0 && (
+                <div className="text-xs text-gray-500">Palette: {item.pallet_weight}kg</div>
+              )}
+              {(item.big_bag_weight || item.pallet_weight) && (
+                <div className="flex justify-between items-center pt-1 border-t border-gray-200">
+                  <span className="font-medium">Poids Net:</span>
+                  <span className="font-bold text-green-600">{netWeight.toFixed(2)} kg</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Shipment Number */}
-        {item.shipmentNumber && (
-          <div className="mb-4">
-            <div className="text-xs font-medium text-gray-600">Numéro d'Expédition:</div>
-            <div className="text-sm">
-              <Hash className="inline-block h-4 w-4 mr-1 align-middle" />
-              {item.shipmentNumber}
+        {/* Date and Additional Info */}
+        <div className="mb-4 text-xs text-gray-500 space-y-1">
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-1" />
+            <div className="text-xs text-gray-500">
+              {formatDate(item.date_added)}
             </div>
           </div>
-        )}
-
-        {/* Condition Badge */}
-        <Badge className={`mb-4 ${conditionColor}`}>
-          {conditionIcon}
-          {conditionText}
-        </Badge>
-
-        {/* Net Weight Display */}
-        {(item.bigBagWeight || item.palletWeight) && (
-          <div className="mb-4">
-            <div className="text-xs font-medium text-gray-600">Poids Net:</div>
-            <div className="text-sm font-semibold">{netWeight.toFixed(2)} kg</div>
-          </div>
-        )}
+          {item.model && (
+            <div>Modèle: {item.model}</div>
+          )}
+        </div>
 
         {/* Metal Content Display */}
         <div className="mb-4">
-          <div className="text-xs font-medium text-gray-600">Contenu Métallique:</div>
+          <div className="text-xs font-medium text-gray-600 mb-1">Contenu Métallique:</div>
           <MetalContentDisplay category={item.category} />
         </div>
 

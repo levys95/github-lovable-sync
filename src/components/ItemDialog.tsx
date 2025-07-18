@@ -16,14 +16,14 @@ interface InventoryItem {
   condition: 'ready' | 'waiting-sorting' | 'unknown';
   quantity: number;
   location: string;
-  dateAdded: string;
+  date_added: string;
   description?: string;
   brand?: string;
   model?: string;
-  bigBagWeight?: number;
-  palletWeight?: number;
+  big_bag_weight?: number;
+  pallet_weight?: number;
   images?: string[];
-  shipmentNumber?: string;
+  shipment_number?: string;
 }
 
 interface ItemDialogProps {
@@ -47,12 +47,12 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
     condition: 'ready' as 'ready' | 'waiting-sorting' | 'unknown',
     quantity: 1,
     location: '',
-    dateAdded: new Date().toISOString().split('T')[0],
+    date_added: new Date().toISOString().split('T')[0],
     description: '',
-    bigBagWeight: 0,
-    palletWeight: 0,
+    big_bag_weight: 0,
+    pallet_weight: 0,
     images: [] as string[],
-    shipmentNumber: ''
+    shipment_number: ''
   });
 
   useEffect(() => {
@@ -62,12 +62,12 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         condition: item.condition,
         quantity: item.quantity,
         location: item.location,
-        dateAdded: item.dateAdded,
+        date_added: item.date_added,
         description: item.description || '',
-        bigBagWeight: item.bigBagWeight || 0,
-        palletWeight: item.palletWeight || 0,
+        big_bag_weight: item.big_bag_weight || 0,
+        pallet_weight: item.pallet_weight || 0,
         images: item.images || [],
-        shipmentNumber: item.shipmentNumber || ''
+        shipment_number: item.shipment_number || ''
       });
     } else if (isOpen) {
       // Reset form when opening for new item
@@ -76,12 +76,12 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         condition: 'ready',
         quantity: 1,
         location: '',
-        dateAdded: new Date().toISOString().split('T')[0],
+        date_added: new Date().toISOString().split('T')[0],
         description: '',
-        bigBagWeight: 0,
-        palletWeight: 0,
+        big_bag_weight: 0,
+        pallet_weight: 0,
         images: [],
-        shipmentNumber: ''
+        shipment_number: ''
       });
     }
   }, [item, isOpen]);
@@ -99,7 +99,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const netWeight = formData.quantity - formData.bigBagWeight - formData.palletWeight;
+  const netWeight = formData.quantity - formData.big_bag_weight - formData.pallet_weight;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -152,23 +152,23 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="dateAdded">{t('dialog.dateAdded')}</Label>
+                  <Label htmlFor="date_added">{t('dialog.dateAdded')}</Label>
                   <Input
-                    id="dateAdded"
+                    id="date_added"
                     type="date"
-                    value={formData.dateAdded}
-                    onChange={(e) => handleInputChange('dateAdded', e.target.value)}
+                    value={formData.date_added}
+                    onChange={(e) => handleInputChange('date_added', e.target.value)}
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="shipmentNumber">{t('dialog.shipmentNumber')}</Label>
+                <Label htmlFor="shipment_number">{t('dialog.shipmentNumber')}</Label>
                 <Input
-                  id="shipmentNumber"
-                  value={formData.shipmentNumber}
-                  onChange={(e) => handleInputChange('shipmentNumber', e.target.value)}
+                  id="shipment_number"
+                  value={formData.shipment_number}
+                  onChange={(e) => handleInputChange('shipment_number', e.target.value)}
                   placeholder="ex: EXP-2024-001"
                 />
               </div>
@@ -192,31 +192,31 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="bigBagWeight">{t('dialog.bigBagWeight')}</Label>
+                    <Label htmlFor="big_bag_weight">{t('dialog.bigBagWeight')}</Label>
                     <Input
-                      id="bigBagWeight"
+                      id="big_bag_weight"
                       type="number"
                       step="0.01"
                       min="0"
-                      value={formData.bigBagWeight}
-                      onChange={(e) => handleInputChange('bigBagWeight', parseFloat(e.target.value) || 0)}
+                      value={formData.big_bag_weight}
+                      onChange={(e) => handleInputChange('big_bag_weight', parseFloat(e.target.value) || 0)}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="palletWeight">{t('dialog.palletWeight')}</Label>
+                    <Label htmlFor="pallet_weight">{t('dialog.palletWeight')}</Label>
                     <Input
-                      id="palletWeight"
+                      id="pallet_weight"
                       type="number"
                       step="0.01"
                       min="0"
-                      value={formData.palletWeight}
-                      onChange={(e) => handleInputChange('palletWeight', parseFloat(e.target.value) || 0)}
+                      value={formData.pallet_weight}
+                      onChange={(e) => handleInputChange('pallet_weight', parseFloat(e.target.value) || 0)}
                     />
                   </div>
                 </div>
                 
-                {(formData.bigBagWeight > 0 || formData.palletWeight > 0) && (
+                {(formData.big_bag_weight > 0 || formData.pallet_weight > 0) && (
                   <div className="pt-2 border-t">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-gray-700">{t('dialog.netWeight')}</span>

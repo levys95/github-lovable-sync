@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      "Gestionnaire Entrepôt E-Déchets": {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          big_bag_weight: number | null
+          brand: string | null
+          category: string
+          condition: string
+          created_at: string
+          date_added: string
+          description: string | null
+          id: string
+          images: Json | null
+          location: string
+          model: string | null
+          name: string
+          pallet_weight: number | null
+          quantity: number
+          shipment_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          big_bag_weight?: number | null
+          brand?: string | null
+          category: string
+          condition: string
+          created_at?: string
+          date_added?: string
+          description?: string | null
+          id?: string
+          images?: Json | null
+          location: string
+          model?: string | null
+          name: string
+          pallet_weight?: number | null
+          quantity?: number
+          shipment_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          big_bag_weight?: number | null
+          brand?: string | null
+          category?: string
+          condition?: string
+          created_at?: string
+          date_added?: string
+          description?: string | null
+          id?: string
+          images?: Json | null
+          location?: string
+          model?: string | null
+          name?: string
+          pallet_weight?: number | null
+          quantity?: number
+          shipment_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

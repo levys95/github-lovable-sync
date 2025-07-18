@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,8 @@ import { PPMDisplay } from '@/components/PPMDisplay';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { calculateTotalPPM } from '@/utils/ppmCalculations';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface InventoryItem {
   id: string;
@@ -18,68 +20,72 @@ interface InventoryItem {
   condition: 'ready' | 'waiting-sorting' | 'unknown';
   quantity: number;
   location: string;
-  dateAdded: string;
+  date_added: string;
   description?: string;
   brand?: string;
   model?: string;
-  bigBagWeight?: number;
-  palletWeight?: number;
+  big_bag_weight?: number;
+  pallet_weight?: number;
   images?: string[];
-  shipmentNumber?: string;
+  shipment_number?: string;
 }
 
 const Index = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   
-  const [items, setItems] = useState<InventoryItem[]>([
-    {
-      id: '1',
-      name: 'iPhone 12',
-      category: 'Smartphones',
-      condition: 'ready',
-      quantity: 15.5,
-      location: 'Entrepôt A-1',
-      dateAdded: '2024-01-15',
-      brand: 'Apple',
-      model: 'iPhone 12',
-      description: 'Smartphones fonctionnels prêts pour la remise à neuf',
-      bigBagWeight: 1.2,
-      palletWeight: 0.8,
-      images: [],
-      shipmentNumber: 'EXP-2024-001'
-    },
-    {
-      id: '2',
-      name: 'Écran Samsung Galaxy',
-      category: 'Gsm a touches',
-      condition: 'waiting-sorting',
-      quantity: 8.3,
-      location: 'Entrepôt B-2',
-      dateAdded: '2024-01-20',
-      brand: 'Samsung',
-      description: 'Écrans tactiles pour appareils mobiles',
-      bigBagWeight: 0.5,
-      images: [],
-      shipmentNumber: 'EXP-2024-002'
-    },
-    {
-      id: '3',
-      name: 'Pièces de téléphone génériques',
-      category: 'China Phone',
-      condition: 'unknown',
-      quantity: 12.1,
-      location: 'Entrepôt C-1',
-      dateAdded: '2024-01-18',
-      description: 'Divers composants de téléphones chinois',
-      images: [],
-      shipmentNumber: 'EXP-2024-003'
-    }
-  ]);
-
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+
+  // Load items from Supabase
+  const loadItems = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform database format to component format
+      const transformedItems = data?.map(item => ({
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        condition: item.condition as 'ready' | 'waiting-sorting' | 'unknown',
+        quantity: parseFloat(item.quantity.toString()),
+        location: item.location,
+        date_added: item.date_added,
+        description: item.description,
+        brand: item.brand,
+        model: item.model,
+        big_bag_weight: item.big_bag_weight ? parseFloat(item.big_bag_weight.toString()) : undefined,
+        pallet_weight: item.pallet_weight ? parseFloat(item.pallet_weight.toString()) : undefined,
+        images: Array.isArray(item.images) ? item.images as string[] : [],
+        shipment_number: item.shipment_number,
+      })) || [];
+
+      setItems(transformedItems);
+    } catch (error) {
+      console.error('Error loading items:', error);
+      toast({
+        title: "Klaida",
+        description: "Nepavyko užkrauti prekių sąrašo",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadItems();
+  }, []);
 
   // Generate categories dynamically from existing items
   const uniqueCategories = Array.from(new Set(items.map(item => item.category)));
@@ -89,7 +95,7 @@ const Index = () => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.shipmentNumber?.toLowerCase().includes(searchTerm.toLowerCase());
+                         item.shipment_number?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -101,26 +107,26 @@ const Index = () => {
 
   const readyWeight = readyItems.reduce((sum, item) => sum + item.quantity, 0);
   const readyNetWeight = readyItems.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
     return sum + netWeight;
   }, 0);
 
   const waitingSortingWeight = waitingSortingItems.reduce((sum, item) => sum + item.quantity, 0);
   const waitingSortingNetWeight = waitingSortingItems.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
     return sum + netWeight;
   }, 0);
 
   const unknownWeight = unknownItems.reduce((sum, item) => sum + item.quantity, 0);
   const unknownNetWeight = unknownItems.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
     return sum + netWeight;
   }, 0);
 
   // Calculate total statistics
   const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalNetWeight = items.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
     return sum + netWeight;
   }, 0);
 
@@ -130,29 +136,129 @@ const Index = () => {
   const unknownPPM = calculateTotalPPM(unknownItems);
   const totalPPM = calculateTotalPPM(items);
 
-  const handleAddItem = (newItem: Omit<InventoryItem, 'id'>) => {
-    const item: InventoryItem = {
-      ...newItem,
-      id: Date.now().toString()
-    };
-    setItems([...items, item]);
-    setIsDialogOpen(false);
+  const handleAddItem = async (newItem: Omit<InventoryItem, 'id'>) => {
+    try {
+      // Transform component format to database format
+      const dbItem = {
+        name: newItem.name,
+        category: newItem.category,
+        condition: newItem.condition,
+        quantity: newItem.quantity,
+        location: newItem.location,
+        date_added: newItem.date_added,
+        description: newItem.description,
+        brand: newItem.brand,
+        model: newItem.model,
+        big_bag_weight: newItem.big_bag_weight,
+        pallet_weight: newItem.pallet_weight,
+        images: newItem.images || [],
+        shipment_number: newItem.shipment_number,
+      };
+
+      const { error } = await supabase
+        .from('inventory_items')
+        .insert([dbItem]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sėkmė",
+        description: "Prekė sėkmingai pridėta",
+      });
+
+      setIsDialogOpen(false);
+      loadItems(); // Reload items
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast({
+        title: "Klaida",
+        description: "Nepavyko pridėti prekės",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleEditItem = (updatedItem: InventoryItem) => {
-    setItems(items.map(item => item.id === updatedItem.id ? updatedItem : item));
-    setEditingItem(null);
-    setIsDialogOpen(false);
+  const handleEditItem = async (updatedItem: InventoryItem) => {
+    try {
+      // Transform component format to database format
+      const dbItem = {
+        name: updatedItem.name,
+        category: updatedItem.category,
+        condition: updatedItem.condition,
+        quantity: updatedItem.quantity,
+        location: updatedItem.location,
+        date_added: updatedItem.date_added,
+        description: updatedItem.description,
+        brand: updatedItem.brand,
+        model: updatedItem.model,
+        big_bag_weight: updatedItem.big_bag_weight,
+        pallet_weight: updatedItem.pallet_weight,
+        images: updatedItem.images || [],
+        shipment_number: updatedItem.shipment_number,
+      };
+
+      const { error } = await supabase
+        .from('inventory_items')
+        .update(dbItem)
+        .eq('id', updatedItem.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sėkmė",
+        description: "Prekė sėkmingai atnaujinta",
+      });
+
+      setEditingItem(null);
+      setIsDialogOpen(false);
+      loadItems(); // Reload items
+    } catch (error) {
+      console.error('Error updating item:', error);
+      toast({
+        title: "Klaida",
+        description: "Nepavyko atnaujinti prekės",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+  const handleDeleteItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('inventory_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sėkmė",
+        description: "Prekė sėkmingai ištrinta",
+      });
+
+      loadItems(); // Reload items
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast({
+        title: "Klaida",
+        description: "Nepavyko ištrinti prekės",
+        variant: "destructive",
+      });
+    }
   };
 
   const openEditDialog = (item: InventoryItem) => {
     setEditingItem(item);
     setIsDialogOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <div className="text-lg">Kraunama...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
