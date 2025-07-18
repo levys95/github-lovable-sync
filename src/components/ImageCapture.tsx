@@ -23,6 +23,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
   const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    console.log('ImageCapture component loaded successfully');
     // Detect mobile devices and native environment
     const checkMobile = () => {
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
