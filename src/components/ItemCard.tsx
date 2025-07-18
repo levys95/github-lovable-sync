@@ -17,7 +17,6 @@ interface InventoryItem {
   date_added: string;
   description?: string;
   brand?: string;
-  model?: string;
   big_bag_weight?: number;
   pallet_weight?: number;
   images?: string[];
@@ -149,9 +148,6 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
               {formatDate(item.date_added)}
             </div>
           </div>
-          {item.model && (
-            <div>Modèle: {item.model}</div>
-          )}
         </div>
 
         {/* Metal Content Display */}

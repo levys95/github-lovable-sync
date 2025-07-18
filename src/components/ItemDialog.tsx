@@ -19,7 +19,6 @@ interface InventoryItem {
   date_added: string;
   description?: string;
   brand?: string;
-  model?: string;
   big_bag_weight?: number;
   pallet_weight?: number;
   images?: string[];
@@ -46,7 +45,6 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
     name: '',
     category: '',
     brand: '',
-    model: '',
     condition: 'ready' as 'ready' | 'waiting-sorting' | 'unknown',
     quantity: 1,
     location: '',
@@ -64,7 +62,6 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         name: item.name,
         category: item.category,
         brand: item.brand || '',
-        model: item.model || '',
         condition: item.condition,
         quantity: item.quantity,
         location: item.location,
@@ -81,7 +78,6 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
         name: '',
         category: '',
         brand: '',
-        model: '',
         condition: 'ready',
         quantity: 1,
         location: '',
@@ -156,26 +152,14 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand">{t('dialog.brand')}</Label>
-                  <Input
-                    id="brand"
-                    value={formData.brand}
-                    onChange={(e) => handleInputChange('brand', e.target.value)}
-                    placeholder={t('dialog.brandPlaceholder')}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="model">{t('dialog.model')}</Label>
-                  <Input
-                    id="model"
-                    value={formData.model}
-                    onChange={(e) => handleInputChange('model', e.target.value)}
-                    placeholder={t('dialog.modelPlaceholder')}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="brand">{t('dialog.brand')}</Label>
+                <Input
+                  id="brand"
+                  value={formData.brand}
+                  onChange={(e) => handleInputChange('brand', e.target.value)}
+                  placeholder={t('dialog.brandPlaceholder')}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

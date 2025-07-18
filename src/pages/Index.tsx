@@ -23,7 +23,6 @@ interface InventoryItem {
   date_added: string;
   description?: string;
   brand?: string;
-  model?: string;
   big_bag_weight?: number;
   pallet_weight?: number;
   images?: string[];
@@ -80,7 +79,6 @@ const Index = () => {
         date_added: item.date_added,
         description: item.description,
         brand: item.brand,
-        model: item.model,
         big_bag_weight: item.big_bag_weight ? parseFloat(item.big_bag_weight.toString()) : undefined,
         pallet_weight: item.pallet_weight ? parseFloat(item.pallet_weight.toString()) : undefined,
         images: Array.isArray(item.images) ? item.images as string[] : [],
@@ -112,7 +110,6 @@ const Index = () => {
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.shipment_number?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -166,7 +163,6 @@ const Index = () => {
         date_added: newItem.date_added,
         description: newItem.description,
         brand: newItem.brand,
-        model: newItem.model,
         big_bag_weight: newItem.big_bag_weight,
         pallet_weight: newItem.pallet_weight,
         images: newItem.images || [],
@@ -208,7 +204,6 @@ const Index = () => {
         date_added: updatedItem.date_added,
         description: updatedItem.description,
         brand: updatedItem.brand,
-        model: updatedItem.model,
         big_bag_weight: updatedItem.big_bag_weight,
         pallet_weight: updatedItem.pallet_weight,
         images: updatedItem.images || [],

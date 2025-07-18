@@ -62,7 +62,6 @@ export type Database = {
           id: string
           images: Json | null
           location: string
-          model: string | null
           name: string
           pallet_weight: number | null
           quantity: number
@@ -80,7 +79,6 @@ export type Database = {
           id?: string
           images?: Json | null
           location: string
-          model?: string | null
           name: string
           pallet_weight?: number | null
           quantity?: number
@@ -98,7 +96,6 @@ export type Database = {
           id?: string
           images?: Json | null
           location?: string
-          model?: string | null
           name?: string
           pallet_weight?: number | null
           quantity?: number
