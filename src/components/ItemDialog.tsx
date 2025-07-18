@@ -124,12 +124,12 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
             {/* Left Column */}
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Prekės pavadinimas</Label>
+                <Label htmlFor="name">{t('dialog.name')}</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Įveskite prekės pavadinimą"
+                  placeholder={t('dialog.namePlaceholder')}
                   required
                 />
               </div>
@@ -158,22 +158,22 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="brand">Prekės ženklas</Label>
+                  <Label htmlFor="brand">{t('dialog.brand')}</Label>
                   <Input
                     id="brand"
                     value={formData.brand}
                     onChange={(e) => handleInputChange('brand', e.target.value)}
-                    placeholder="Įveskite prekės ženklą"
+                    placeholder={t('dialog.brandPlaceholder')}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="model">Modelis</Label>
+                  <Label htmlFor="model">{t('dialog.model')}</Label>
                   <Input
                     id="model"
                     value={formData.model}
                     onChange={(e) => handleInputChange('model', e.target.value)}
-                    placeholder="Įveskite modelį"
+                    placeholder={t('dialog.modelPlaceholder')}
                   />
                 </div>
               </div>
