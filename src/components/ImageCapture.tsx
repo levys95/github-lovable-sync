@@ -1,34 +1,47 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Camera, Upload, X, Image as ImageIcon, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 interface ImageCaptureProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
+  allowVideo?: boolean;
 }
 
-export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCaptureProps) => {
+export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo = true }: ImageCaptureProps) => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isNativeMobile, setIsNativeMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Detect mobile devices, especially iOS
+    // Detect mobile devices and native environment
     const checkMobile = () => {
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isNative = Capacitor.isNativePlatform();
+      
       setIsMobile(isMobileDevice || isIOS);
+      setIsNativeMobile(isNative);
     };
     
     checkMobile();
   }, []);
 
   const startCamera = async () => {
+    if (isNativeMobile) {
+      await takeNativePhoto();
+      return;
+    }
+
     // On mobile devices, especially iOS, prefer the file input method
     if (isMobile) {
       handleCameraInput();
@@ -55,9 +68,45 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
     }
   };
 
+  const takeNativePhoto = async () => {
+    try {
+      const image = await CapacitorCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+        width: 1280,
+        height: 720
+      });
+
+      if (image.dataUrl) {
+        const newImages = [...images, image.dataUrl];
+        onImagesChange(newImages);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+    }
+  };
+
+  const recordNativeVideo = async () => {
+    try {
+      // For now, use the web video input as native video recording
+      // requires more complex setup with media recorder
+      handleVideoInput();
+    } catch (error) {
+      console.error('Error recording video:', error);
+    }
+  };
+
   const handleCameraInput = () => {
     if (cameraInputRef.current) {
       cameraInputRef.current.click();
+    }
+  };
+
+  const handleVideoInput = () => {
+    if (videoInputRef.current) {
+      videoInputRef.current.click();
     }
   };
 
@@ -114,6 +163,27 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
     event.target.value = '';
   };
 
+  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        if (images.length < maxImages) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              const newImages = [...images, e.target.result as string];
+              onImagesChange(newImages);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+    
+    // Clear the input so the same file can be selected again
+    event.target.value = '';
+  };
+
   const removeImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     onImagesChange(newImages);
@@ -122,7 +192,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-700">Photos ({images.length}/{maxImages})</h3>
+        <h3 className="text-sm font-medium text-gray-700">Photos & Vidéos ({images.length}/{maxImages})</h3>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -132,8 +202,20 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
             disabled={isCapturing || images.length >= maxImages}
           >
             <Camera className="h-4 w-4 mr-1" />
-            {isMobile ? 'Camera' : 'Camera'}
+            Photo
           </Button>
+          {allowVideo && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={isNativeMobile ? recordNativeVideo : handleVideoInput}
+              disabled={isCapturing || images.length >= maxImages}
+            >
+              <Video className="h-4 w-4 mr-1" />
+              Vidéo
+            </Button>
+          )}
           <Button
             type="button"
             variant="outline"
@@ -151,7 +233,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         multiple
         onChange={handleFileUpload}
         className="hidden"
@@ -164,6 +246,16 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
         accept="image/*"
         capture="environment"
         onChange={handleFileUpload}
+        className="hidden"
+      />
+
+      {/* Video input for mobile devices - opens video recorder */}
+      <input
+        ref={videoInputRef}
+        type="file"
+        accept="video/*"
+        capture="environment"
+        onChange={handleVideoUpload}
         className="hidden"
       />
 
@@ -198,11 +290,19 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {images.map((image, index) => (
             <div key={index} className="relative group">
-              <img
-                src={image}
-                alt={`Photo ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg border"
-              />
+              {image.startsWith('data:video/') ? (
+                <video
+                  src={image}
+                  controls
+                  className="w-full h-32 object-cover rounded-lg border"
+                />
+              ) : (
+                <img
+                  src={image}
+                  alt={`Media ${index + 1}`}
+                  className="w-full h-32 object-cover rounded-lg border"
+                />
+              )}
               <Button
                 type="button"
                 variant="destructive"
@@ -220,11 +320,13 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5 }: ImageCap
       {images.length === 0 && (
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
           <ImageIcon className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-500">No photos added yet</p>
+          <p className="text-sm text-gray-500">Aucune photo ou vidéo ajoutée</p>
           <p className="text-xs text-gray-400">
-            {isMobile 
-              ? 'Tap camera button to take photos' 
-              : 'Use camera or upload files to add photos'
+            {isNativeMobile 
+              ? 'Utilisez les boutons Photo et Vidéo pour capturer du contenu' 
+              : isMobile 
+              ? 'Appuyez sur les boutons pour prendre des photos ou vidéos' 
+              : 'Utilisez la caméra ou téléchargez des fichiers'
             }
           </p>
         </div>
