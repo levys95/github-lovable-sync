@@ -114,13 +114,12 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           </Badge>
         </div>
 
-        {/* Images Gallery */}
+        {/* Images Gallery - positioned after category info */}
         {item.images && item.images.length > 0 && (
           <div className="mb-4">
-            <div className="text-xs font-medium text-gray-600 mb-2">Nuotraukos:</div>
-            <div className="grid grid-cols-2 gap-2">
-              {item.images.slice(0, 4).map((image, index) => (
-                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+            <div className="grid grid-cols-3 gap-2">
+              {item.images.slice(0, 3).map((image, index) => (
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border">
                   <img
                     src={image}
                     alt={`${item.name} nuotrauka ${index + 1}`}
@@ -132,12 +131,14 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
                   />
                 </div>
               ))}
+              {item.images.length > 3 && (
+                <div className="aspect-square rounded-lg bg-gray-100 border flex items-center justify-center">
+                  <span className="text-xs text-gray-500 font-medium">
+                    +{item.images.length - 3}
+                  </span>
+                </div>
+              )}
             </div>
-            {item.images.length > 4 && (
-              <div className="text-xs text-gray-500 mt-1">
-                +{item.images.length - 4} daugiau nuotraukų
-              </div>
-            )}
           </div>
         )}
 
