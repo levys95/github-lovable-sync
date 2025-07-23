@@ -58,13 +58,14 @@ const Index = () => {
     }
   };
 
-  // Load items from Supabase
+  // Load items from Supabase (without images for performance)
   const loadItems = async () => {
     try {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('id, name, category, condition, quantity, location, date_added, description, brand, big_bag_weight, pallet_weight, shipment_number')
+        .order('created_at', { ascending: false })
+        .limit(1000); // Limit to prevent timeouts
 
       if (error) throw error;
 
@@ -81,7 +82,7 @@ const Index = () => {
         brand: item.brand,
         big_bag_weight: item.big_bag_weight ? parseFloat(item.big_bag_weight.toString()) : undefined,
         pallet_weight: item.pallet_weight ? parseFloat(item.pallet_weight.toString()) : undefined,
-        images: Array.isArray(item.images) ? item.images as string[] : [],
+        images: [], // Images are not loaded initially for performance
         shipment_number: item.shipment_number,
       })) || [];
 
