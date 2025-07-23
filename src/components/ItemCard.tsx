@@ -114,6 +114,33 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           </Badge>
         </div>
 
+        {/* Images Gallery */}
+        {item.images && item.images.length > 0 && (
+          <div className="mb-4">
+            <div className="text-xs font-medium text-gray-600 mb-2">Nuotraukos:</div>
+            <div className="grid grid-cols-2 gap-2">
+              {item.images.slice(0, 4).map((image, index) => (
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                  <img
+                    src={image}
+                    alt={`${item.name} nuotrauka ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            {item.images.length > 4 && (
+              <div className="text-xs text-gray-500 mt-1">
+                +{item.images.length - 4} daugiau nuotraukų
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Weight Information */}
         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
           <div className="grid grid-cols-1 gap-2">

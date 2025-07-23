@@ -87,6 +87,9 @@ const Index = () => {
       })) || [];
 
       setItems(transformedItems);
+      
+      // Load images for items that have them
+      loadImagesForItems(transformedItems);
     } catch (error) {
       console.error('Error loading items:', error);
       toast({
@@ -94,6 +97,36 @@ const Index = () => {
         description: "Nepavyko užkrauti prekių sąrašo",
         variant: "destructive",
       });
+    }
+  };
+
+  // Load images for items that have them
+  const loadImagesForItems = async (itemsToCheck: InventoryItem[]) => {
+    try {
+      const itemIds = itemsToCheck.map(item => item.id);
+      
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('id, images')
+        .in('id', itemIds)
+        .not('images', 'is', null);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        // Update items with their images
+        const itemsWithImages = itemsToCheck.map(item => {
+          const itemData = data.find(d => d.id === item.id);
+          if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
+            return { ...item, images: itemData.images as string[] };
+          }
+          return item;
+        });
+        
+        setItems(itemsWithImages);
+      }
+    } catch (error) {
+      console.error('Error loading images:', error);
     }
   };
 
