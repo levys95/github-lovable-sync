@@ -114,11 +114,19 @@ const Index = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        // Update items with their images
+        // Update items with their images, filtering out base64 images
         const itemsWithImages = itemsToCheck.map(item => {
           const itemData = data.find(d => d.id === item.id);
           if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
-            return { ...item, images: itemData.images as string[] };
+            // Filter out base64 images (they are very long and cause timeouts)
+            const validImages = itemData.images
+              .filter((img: any) => 
+                typeof img === 'string' && 
+                !img.startsWith('data:image/') && 
+                img.length < 500
+              )
+              .map((img: any) => img as string); // Type assertion for filtered images
+            return { ...item, images: validImages };
           }
           return item;
         });
@@ -127,6 +135,7 @@ const Index = () => {
       }
     } catch (error) {
       console.error('Error loading images:', error);
+      // Don't show error toast for image loading as it's not critical
     }
   };
 
