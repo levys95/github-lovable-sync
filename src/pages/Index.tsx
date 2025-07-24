@@ -32,7 +32,7 @@ interface InventoryItem {
 const Index = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  // Force rebuild to clear cache
+  // Force rebuild to clear cache - v2
   
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
