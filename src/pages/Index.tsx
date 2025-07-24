@@ -114,17 +114,19 @@ const Index = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        // Update items with their images, filtering out base64 images
+        // Update items with their images, filtering out only problematic base64 images
         const itemsWithImages = itemsToCheck.map(item => {
           const itemData = data.find(d => d.id === item.id);
           if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
-            // Filter out base64 images (they are very long and cause timeouts)
+            // Filter out only very long base64 images (they cause timeouts), but keep URLs
             const validImages = itemData.images
-              .filter((img: any) => 
-                typeof img === 'string' && 
-                !img.startsWith('data:image/') && 
-                img.length < 500
-              )
+              .filter((img: any) => {
+                if (typeof img === 'string') {
+                  // Keep URLs from Supabase storage and short data URLs
+                  return !img.startsWith('data:image/') || img.length < 50000;
+                }
+                return false;
+              })
               .map((img: any) => img as string);
             return { ...item, images: validImages };
           }
