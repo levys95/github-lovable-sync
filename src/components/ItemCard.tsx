@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Edit2, Trash2, Package, MapPin, Calendar, Weight, User, Hash } from 'lucide-react';
+import { Edit2, Trash2, Package, MapPin, Calendar, Weight, User } from 'lucide-react';
 import { MetalContentDisplay } from './MetalContent';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ImageViewer } from './ImageViewer';
@@ -70,50 +70,64 @@ const formatDate = (dateString: string): string => {
   return date.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 };
 
-export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => {
+export const ItemCard = React.memo(({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => {
   const { t } = useLanguage();
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<string[]>(item.images || []);
   const [imagesLoading, setImagesLoading] = useState(false);
+  const [hasLoadedImages, setHasLoadedImages] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Load images when component becomes visible
-  useEffect(() => {
-    const loadImages = async () => {
-      if (loadedImages.length > 0 || imagesLoading) return;
-      
-      setImagesLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .select('images')
-          .eq('id', item.id)
-          .single();
+  // Memoized calculations
+  const netWeight = useMemo(() => 
+    item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0),
+    [item.quantity, item.big_bag_weight, item.pallet_weight]
+  );
+  
+  const conditionColor = useMemo(() => getConditionColor(item.condition), [item.condition]);
+  const conditionIcon = useMemo(() => getConditionIcon(item.condition), [item.condition]);
+  const conditionText = useMemo(() => getConditionText(item.condition), [item.condition]);
+  const formattedDate = useMemo(() => formatDate(item.date_added), [item.date_added]);
 
-        if (error) throw error;
+  // Load images only once when component becomes visible
+  const loadImages = useCallback(async () => {
+    if (hasLoadedImages || imagesLoading) return;
+    
+    setImagesLoading(true);
+    setHasLoadedImages(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('images')
+        .eq('id', item.id)
+        .single();
 
-        if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
-          // Only keep valid Supabase storage URLs
-          const validImages = data.images
-            .filter((img: any) => {
-              if (typeof img === 'string') {
-                return img.includes('supabase.co/storage/v1/object/public/');
-              }
-              return false;
-            })
-            .map((img: any) => img as string);
-          
-          setLoadedImages(validImages);
-          onImagesLoaded?.(item.id, validImages);
-        }
-      } catch (error) {
-        console.error('Error loading images for item:', item.id, error);
-      } finally {
-        setImagesLoading(false);
+      if (error) throw error;
+
+      if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
+        // Only keep valid Supabase storage URLs
+        const validImages = data.images
+          .filter((img: any) => {
+            if (typeof img === 'string') {
+              return img.includes('supabase.co/storage/v1/object/public/');
+            }
+            return false;
+          })
+          .map((img: any) => img as string);
+        
+        setLoadedImages(validImages);
+        onImagesLoaded?.(item.id, validImages);
       }
-    };
+    } catch (error) {
+      console.error('Error loading images for item:', item.id, error);
+    } finally {
+      setImagesLoading(false);
+    }
+  }, [item.id, hasLoadedImages, imagesLoading, onImagesLoaded]);
 
+  useEffect(() => {
     // Use intersection observer to load images when card becomes visible
     const observer = new IntersectionObserver(
       (entries) => {
@@ -134,19 +148,16 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
     return () => {
       observer.disconnect();
     };
-  }, [item.id, loadedImages.length, imagesLoading, onImagesLoaded]);
+  }, [loadImages]);
 
-  const openImageViewer = (index: number) => {
+  const openImageViewer = useCallback((index: number) => {
     setSelectedImageIndex(index);
     setIsImageViewerOpen(true);
-  };
-  
-  // Calculate net weight
-  const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
-  
-  const conditionColor = getConditionColor(item.condition);
-  const conditionIcon = getConditionIcon(item.condition);
-  const conditionText = getConditionText(item.condition);
+  }, []);
+
+  const closeImageViewer = useCallback(() => {
+    setIsImageViewerOpen(false);
+  }, []);
 
   return (
     <Card ref={cardRef} className="h-full hover:shadow-lg transition-shadow duration-200">
@@ -179,7 +190,7 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
           </div>
           
           {/* Condition Badge */}
-          <Badge className={`${conditionColor}`}>
+          <Badge className={conditionColor}>
             {conditionIcon}
             {conditionText}
           </Badge>
@@ -198,6 +209,7 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
                   src={loadedImages[0]}
                   alt={`${item.name} nuotrauka`}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -224,6 +236,7 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
                       src={image}
                       alt={`${item.name} nuotrauka ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
@@ -249,10 +262,13 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
         {/* Loading indicator for images */}
         {imagesLoading && (
           <div className="mb-4">
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="aspect-square rounded-lg bg-gray-200 animate-pulse" />
-              ))}
+            <div className="aspect-square rounded-lg bg-gray-200 animate-pulse sm:hidden" />
+            <div className="hidden sm:block">
+              <div className="grid grid-cols-3 gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="aspect-square rounded-lg bg-gray-200 animate-pulse" />
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -288,7 +304,7 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-1" />
             <div className="text-xs text-gray-500">
-              {formatDate(item.date_added)}
+              {formattedDate}
             </div>
           </div>
         </div>
@@ -333,9 +349,9 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
       <ImageViewer
         images={loadedImages || []}
         isOpen={isImageViewerOpen}
-        onClose={() => setIsImageViewerOpen(false)}
+        onClose={closeImageViewer}
         initialIndex={selectedImageIndex}
       />
     </Card>
   );
-};
+});
