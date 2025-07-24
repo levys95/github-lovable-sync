@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageCaptureProps {
   images: string[];
@@ -69,6 +70,44 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
     }
   };
 
+  const uploadImageToStorage = async (file: File | Blob): Promise<string | null> => {
+    try {
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+      const { data, error } = await supabase.storage
+        .from('inventory-images')
+        .upload(fileName, file, {
+          contentType: 'image/jpeg',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Error uploading image:', error);
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('inventory-images')
+        .getPublicUrl(data.path);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+  };
+
+  const dataURLtoBlob = (dataurl: string): Blob => {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  };
+
   const takeNativePhoto = async () => {
     try {
       const image = await CapacitorCamera.getPhoto({
@@ -81,8 +120,12 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
       });
 
       if (image.dataUrl) {
-        const newImages = [...images, image.dataUrl];
-        onImagesChange(newImages);
+        const blob = dataURLtoBlob(image.dataUrl);
+        const imageUrl = await uploadImageToStorage(blob);
+        if (imageUrl) {
+          const newImages = [...images, imageUrl];
+          onImagesChange(newImages);
+        }
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -120,7 +163,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
     setIsCapturing(false);
   };
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current && canvasRef.current) {
       const canvas = canvasRef.current;
       const video = videoRef.current;
@@ -131,44 +174,59 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
       const context = canvas.getContext('2d');
       if (context) {
         context.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        
-        const newImages = [...images, imageData];
-        onImagesChange(newImages);
-        
-        if (newImages.length >= maxImages) {
-          stopCamera();
-        }
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            const imageUrl = await uploadImageToStorage(blob);
+            if (imageUrl) {
+              const newImages = [...images, imageUrl];
+              onImagesChange(newImages);
+              
+              if (newImages.length >= maxImages) {
+                stopCamera();
+              }
+            }
+          }
+        }, 'image/jpeg', 0.8);
       }
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      Array.from(files).forEach(file => {
+      for (const file of Array.from(files)) {
         if (images.length < maxImages) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              const newImages = [...images, e.target.result as string];
+          if (file.type.startsWith('image/')) {
+            const imageUrl = await uploadImageToStorage(file);
+            if (imageUrl) {
+              const newImages = [...images, imageUrl];
               onImagesChange(newImages);
             }
-          };
-          reader.readAsDataURL(file);
+          } else if (file.type.startsWith('video/')) {
+            // For videos, still use data URL for now
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (e.target?.result) {
+                const newImages = [...images, e.target.result as string];
+                onImagesChange(newImages);
+              }
+            };
+            reader.readAsDataURL(file);
+          }
         }
-      });
+      }
     }
     
     // Clear the input so the same file can be selected again
     event.target.value = '';
   };
 
-  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      Array.from(files).forEach(file => {
+      for (const file of Array.from(files)) {
         if (images.length < maxImages) {
+          // For videos, still use data URL for now
           const reader = new FileReader();
           reader.onload = (e) => {
             if (e.target?.result) {
@@ -178,7 +236,7 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
           };
           reader.readAsDataURL(file);
         }
-      });
+      }
     }
     
     // Clear the input so the same file can be selected again
