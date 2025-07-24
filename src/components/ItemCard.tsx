@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Edit2, Trash2, Package, MapPin, Calendar, Weight, User, Hash } from 'lucide-react';
 import { MetalContentDisplay } from './MetalContent';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ImageViewer } from './ImageViewer';
 
 interface InventoryItem {
   id: string;
@@ -69,6 +70,13 @@ const formatDate = (dateString: string): string => {
 
 export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
   const { t } = useLanguage();
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const openImageViewer = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsImageViewerOpen(true);
+  };
   
   // Calculate net weight
   const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
@@ -119,7 +127,11 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           <div className="mb-4">
             <div className="grid grid-cols-3 gap-2">
               {item.images.slice(0, 3).map((image, index) => (
-                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border">
+                <div 
+                  key={index} 
+                  className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => openImageViewer(index)}
+                >
                   <img
                     src={image}
                     alt={`${item.name} nuotrauka ${index + 1}`}
@@ -132,7 +144,10 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
                 </div>
               ))}
               {item.images.length > 3 && (
-                <div className="aspect-square rounded-lg bg-gray-100 border flex items-center justify-center">
+                <div 
+                  className="aspect-square rounded-lg bg-gray-100 border flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                  onClick={() => openImageViewer(3)}
+                >
                   <span className="text-xs text-gray-500 font-medium">
                     +{item.images.length - 3}
                   </span>
@@ -213,6 +228,14 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
           </AlertDialog>
         </div>
       </CardContent>
+
+      {/* Image Viewer Modal */}
+      <ImageViewer
+        images={item.images || []}
+        isOpen={isImageViewerOpen}
+        onClose={() => setIsImageViewerOpen(false)}
+        initialIndex={selectedImageIndex}
+      />
     </Card>
   );
 };
