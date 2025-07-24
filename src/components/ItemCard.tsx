@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Edit2, Trash2, Package, MapPin, Calendar, Weight, User, Hash } from 'lu
 import { MetalContentDisplay } from './MetalContent';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ImageViewer } from './ImageViewer';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InventoryItem {
   id: string;
@@ -28,6 +29,7 @@ interface ItemCardProps {
   item: InventoryItem;
   onEdit: () => void;
   onDelete: () => void;
+  onImagesLoaded?: (itemId: string, images: string[]) => void;
 }
 
 const getConditionColor = (condition: InventoryItem['condition']): string => {
@@ -68,10 +70,71 @@ const formatDate = (dateString: string): string => {
   return date.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 };
 
-export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
+export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => {
   const { t } = useLanguage();
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<string[]>(item.images || []);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Load images when component becomes visible
+  useEffect(() => {
+    const loadImages = async () => {
+      if (loadedImages.length > 0 || imagesLoading) return;
+      
+      setImagesLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .select('images')
+          .eq('id', item.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
+          // Only keep valid Supabase storage URLs
+          const validImages = data.images
+            .filter((img: any) => {
+              if (typeof img === 'string') {
+                return img.includes('supabase.co/storage/v1/object/public/');
+              }
+              return false;
+            })
+            .map((img: any) => img as string);
+          
+          setLoadedImages(validImages);
+          onImagesLoaded?.(item.id, validImages);
+        }
+      } catch (error) {
+        console.error('Error loading images for item:', item.id, error);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    // Use intersection observer to load images when card becomes visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            loadImages();
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [item.id, loadedImages.length, imagesLoading, onImagesLoaded]);
 
   const openImageViewer = (index: number) => {
     setSelectedImageIndex(index);
@@ -86,7 +149,7 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
   const conditionText = getConditionText(item.condition);
 
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow duration-200">
+    <Card ref={cardRef} className="h-full hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-6">
         {/* Header Section */}
         <div className="mb-4">
@@ -123,10 +186,10 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
         </div>
 
         {/* Images Gallery - positioned after category info */}
-        {item.images && item.images.length > 0 && (
+        {loadedImages && loadedImages.length > 0 && (
           <div className="mb-4">
             <div className="grid grid-cols-3 gap-2">
-              {item.images.slice(0, 3).map((image, index) => (
+              {loadedImages.slice(0, 3).map((image, index) => (
                 <div 
                   key={index} 
                   className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border cursor-pointer hover:opacity-80 transition-opacity"
@@ -143,16 +206,27 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
                   />
                 </div>
               ))}
-              {item.images.length > 3 && (
+              {loadedImages.length > 3 && (
                 <div 
                   className="aspect-square rounded-lg bg-gray-100 border flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
                   onClick={() => openImageViewer(3)}
                 >
                   <span className="text-xs text-gray-500 font-medium">
-                    +{item.images.length - 3}
+                    +{loadedImages.length - 3}
                   </span>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Loading indicator for images */}
+        {imagesLoading && (
+          <div className="mb-4">
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="aspect-square rounded-lg bg-gray-200 animate-pulse" />
+              ))}
             </div>
           </div>
         )}
@@ -231,7 +305,7 @@ export const ItemCard = ({ item, onEdit, onDelete }: ItemCardProps) => {
 
       {/* Image Viewer Modal */}
       <ImageViewer
-        images={item.images || []}
+        images={loadedImages || []}
         isOpen={isImageViewerOpen}
         onClose={() => setIsImageViewerOpen(false)}
         initialIndex={selectedImageIndex}

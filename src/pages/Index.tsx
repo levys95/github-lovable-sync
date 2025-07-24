@@ -88,11 +88,8 @@ const Index = () => {
 
       setItems(transformedItems);
       
-      // Load images for first 20 items immediately
-      const firstItemIds = transformedItems.slice(0, 20).map(item => item.id);
-      if (firstItemIds.length > 0) {
-        loadImagesForSpecificItems(firstItemIds);
-      }
+      // Don't load images immediately to avoid timeout
+      // Images will be loaded on demand when cards become visible
     } catch (error) {
       console.error('Error loading items:', error);
       toast({
@@ -103,54 +100,13 @@ const Index = () => {
     }
   };
 
-  // Load images for specific items on demand
-  const loadImagesForSpecificItems = async (itemIds: string[]) => {
-    try {
-      // Load images in smaller batches to avoid timeout
-      const batchSize = 10;
-      const batches = [];
-      for (let i = 0; i < itemIds.length; i += batchSize) {
-        batches.push(itemIds.slice(i, i + batchSize));
-      }
-
-      for (const batch of batches) {
-        const { data, error } = await supabase
-          .from('inventory_items')
-          .select('id, images')
-          .in('id', batch)
-          .not('images', 'is', null);
-
-        if (error) {
-          console.error('Error loading images batch:', error);
-          continue;
-        }
-
-        if (data && data.length > 0) {
-          // Update items with their images
-          setItems(prevItems => 
-            prevItems.map(item => {
-              const itemData = data.find(d => d.id === item.id);
-              if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
-                // Only keep valid image URLs (Supabase storage URLs)
-                const validImages = itemData.images
-                  .filter((img: any) => {
-                    if (typeof img === 'string') {
-                      // Only keep Supabase storage URLs
-                      return img.includes('supabase.co/storage/v1/object/public/');
-                    }
-                    return false;
-                  })
-                  .map((img: any) => img as string);
-                return { ...item, images: validImages };
-              }
-              return item;
-            })
-          );
-        }
-      }
-    } catch (error) {
-      console.error('Error loading images:', error);
-    }
+  // Update item images when they are loaded
+  const handleImagesLoaded = (itemId: string, images: string[]) => {
+    setItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId ? { ...item, images } : item
+      )
+    );
   };
 
   const loadData = async () => {
@@ -281,13 +237,7 @@ const Index = () => {
 
       setEditingItem(null);
       setIsDialogOpen(false);
-      
-      // Reload items and load images for the updated item
-      loadItems();
-      // Load images for the updated item specifically
-      setTimeout(() => {
-        loadImagesForSpecificItems([updatedItem.id]);
-      }, 1000);
+      loadItems(); // Reload items
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
@@ -586,6 +536,7 @@ const Index = () => {
                 item={item}
                 onEdit={() => openEditDialog(item)}
                 onDelete={() => handleDeleteItem(item.id)}
+                onImagesLoaded={handleImagesLoaded}
               />
             ))}
           </div>
