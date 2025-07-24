@@ -63,9 +63,9 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, name, category, condition, quantity, location, date_added, description, brand, big_bag_weight, pallet_weight, shipment_number')
+        .select('id, name, category, condition, quantity, location, date_added, description, brand, big_bag_weight, pallet_weight, shipment_number, images')
         .order('created_at', { ascending: false })
-        .limit(1000); // Limit to prevent timeouts
+        .limit(1000);
 
       if (error) throw error;
 
@@ -82,14 +82,18 @@ const Index = () => {
         brand: item.brand,
         big_bag_weight: item.big_bag_weight ? parseFloat(item.big_bag_weight.toString()) : undefined,
         pallet_weight: item.pallet_weight ? parseFloat(item.pallet_weight.toString()) : undefined,
-        images: [], // Images are not loaded initially for performance
+        images: item.images && Array.isArray(item.images) ? 
+          item.images
+            .filter((img: any) => 
+              typeof img === 'string' && 
+              !img.startsWith('data:image/') && 
+              img.length < 500
+            )
+            .map((img: any) => img as string) : [],
         shipment_number: item.shipment_number,
       })) || [];
 
       setItems(transformedItems);
-      
-      // Load images for items that have them
-      loadImagesForItems(transformedItems);
     } catch (error) {
       console.error('Error loading items:', error);
       toast({
@@ -97,45 +101,6 @@ const Index = () => {
         description: "Nepavyko užkrauti prekių sąrašo",
         variant: "destructive",
       });
-    }
-  };
-
-  // Load images for items that have them
-  const loadImagesForItems = async (itemsToCheck: InventoryItem[]) => {
-    try {
-      const itemIds = itemsToCheck.map(item => item.id);
-      
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('id, images')
-        .in('id', itemIds)
-        .not('images', 'is', null);
-
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        // Update items with their images, filtering out base64 images
-        const itemsWithImages = itemsToCheck.map(item => {
-          const itemData = data.find(d => d.id === item.id);
-          if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
-            // Filter out base64 images (they are very long and cause timeouts)
-            const validImages = itemData.images
-              .filter((img: any) => 
-                typeof img === 'string' && 
-                !img.startsWith('data:image/') && 
-                img.length < 500
-              )
-              .map((img: any) => img as string); // Type assertion for filtered images
-            return { ...item, images: validImages };
-          }
-          return item;
-        });
-        
-        setItems(itemsWithImages);
-      }
-    } catch (error) {
-      console.error('Error loading images:', error);
-      // Don't show error toast for image loading as it's not critical
     }
   };
 
