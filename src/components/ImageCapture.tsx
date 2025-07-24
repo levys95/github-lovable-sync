@@ -70,12 +70,50 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
     }
   };
 
+  const optimizeImage = async (file: File | Blob): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions (max 1280px width/height)
+        const MAX_DIMENSION = 1280;
+        let { width, height } = img;
+        
+        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+          if (width > height) {
+            height = (height * MAX_DIMENSION) / width;
+            width = MAX_DIMENSION;
+          } else {
+            width = (width * MAX_DIMENSION) / height;
+            height = MAX_DIMENSION;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        if (ctx) {
+          // Draw and compress the image
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(resolve as BlobCallback, 'image/jpeg', 0.8);
+        }
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const uploadImageToStorage = async (file: File | Blob): Promise<string | null> => {
     try {
+      // Optimize image before upload
+      const optimizedImage = await optimizeImage(file);
+      
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
       const { data, error } = await supabase.storage
         .from('inventory-images')
-        .upload(fileName, file, {
+        .upload(fileName, optimizedImage, {
           contentType: 'image/jpeg',
           upsert: false
         });
