@@ -70,7 +70,7 @@ const formatDate = (dateString: string): string => {
   return date.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 };
 
-export const ItemCard = React.memo(({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => {
+const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => {
   const { t } = useLanguage();
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -354,4 +354,8 @@ export const ItemCard = React.memo(({ item, onEdit, onDelete, onImagesLoaded }: 
       />
     </Card>
   );
-});
+};
+
+const MemoizedItemCard = React.memo(ItemCard);
+
+export { MemoizedItemCard as ItemCard };
