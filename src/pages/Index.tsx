@@ -88,8 +88,11 @@ const Index = () => {
 
       setItems(transformedItems);
       
-      // Load images separately to avoid timeout
-      loadImagesForItems(transformedItems);
+      // Load images for first 20 items immediately
+      const firstItemIds = transformedItems.slice(0, 20).map(item => item.id);
+      if (firstItemIds.length > 0) {
+        loadImagesForSpecificItems(firstItemIds);
+      }
     } catch (error) {
       console.error('Error loading items:', error);
       toast({
@@ -100,44 +103,53 @@ const Index = () => {
     }
   };
 
-  // Load images for items that have them
-  const loadImagesForItems = async (itemsToCheck: InventoryItem[]) => {
+  // Load images for specific items on demand
+  const loadImagesForSpecificItems = async (itemIds: string[]) => {
     try {
-      const itemIds = itemsToCheck.map(item => item.id);
-      
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('id, images')
-        .in('id', itemIds)
-        .not('images', 'is', null);
+      // Load images in smaller batches to avoid timeout
+      const batchSize = 10;
+      const batches = [];
+      for (let i = 0; i < itemIds.length; i += batchSize) {
+        batches.push(itemIds.slice(i, i + batchSize));
+      }
 
-      if (error) throw error;
+      for (const batch of batches) {
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .select('id, images')
+          .in('id', batch)
+          .not('images', 'is', null);
 
-      if (data && data.length > 0) {
-        // Update items with their images, filtering out only problematic base64 images
-        const itemsWithImages = itemsToCheck.map(item => {
-          const itemData = data.find(d => d.id === item.id);
-          if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
-            // Filter out only very long base64 images (they cause timeouts), but keep URLs
-            const validImages = itemData.images
-              .filter((img: any) => {
-                if (typeof img === 'string') {
-                  // Keep URLs from Supabase storage and short data URLs
-                  return !img.startsWith('data:image/') || img.length < 50000;
-                }
-                return false;
-              })
-              .map((img: any) => img as string);
-            return { ...item, images: validImages };
-          }
-          return item;
-        });
-        
-        setItems(itemsWithImages);
+        if (error) {
+          console.error('Error loading images batch:', error);
+          continue;
+        }
+
+        if (data && data.length > 0) {
+          // Update items with their images
+          setItems(prevItems => 
+            prevItems.map(item => {
+              const itemData = data.find(d => d.id === item.id);
+              if (itemData && itemData.images && Array.isArray(itemData.images) && itemData.images.length > 0) {
+                // Only keep valid image URLs (Supabase storage URLs)
+                const validImages = itemData.images
+                  .filter((img: any) => {
+                    if (typeof img === 'string') {
+                      // Only keep Supabase storage URLs
+                      return img.includes('supabase.co/storage/v1/object/public/');
+                    }
+                    return false;
+                  })
+                  .map((img: any) => img as string);
+                return { ...item, images: validImages };
+              }
+              return item;
+            })
+          );
+        }
       }
     } catch (error) {
       console.error('Error loading images:', error);
-      // Don't show error toast for image loading as it's not critical
     }
   };
 
@@ -269,7 +281,13 @@ const Index = () => {
 
       setEditingItem(null);
       setIsDialogOpen(false);
-      loadItems(); // Reload items
+      
+      // Reload items and load images for the updated item
+      loadItems();
+      // Load images for the updated item specifically
+      setTimeout(() => {
+        loadImagesForSpecificItems([updatedItem.id]);
+      }, 1000);
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
