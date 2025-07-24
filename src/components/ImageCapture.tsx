@@ -194,26 +194,29 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
+      const uploadPromises = [];
       for (const file of Array.from(files)) {
-        if (images.length < maxImages) {
+        if (images.length + uploadPromises.length < maxImages) {
           if (file.type.startsWith('image/')) {
-            const imageUrl = await uploadImageToStorage(file);
-            if (imageUrl) {
-              const newImages = [...images, imageUrl];
-              onImagesChange(newImages);
-            }
+            uploadPromises.push(uploadImageToStorage(file));
           } else if (file.type.startsWith('video/')) {
             // For videos, still use data URL for now
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              if (e.target?.result) {
-                const newImages = [...images, e.target.result as string];
-                onImagesChange(newImages);
-              }
-            };
-            reader.readAsDataURL(file);
+            uploadPromises.push(new Promise<string>((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                resolve(e.target?.result as string);
+              };
+              reader.readAsDataURL(file);
+            }));
           }
         }
+      }
+      
+      const uploadedUrls = await Promise.all(uploadPromises);
+      const validUrls = uploadedUrls.filter(url => url !== null);
+      if (validUrls.length > 0) {
+        const newImages = [...images, ...validUrls];
+        onImagesChange(newImages);
       }
     }
     
