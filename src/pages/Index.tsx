@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +40,8 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20; // Limit items per page for mobile performance
 
   // Load categories from Supabase
   const loadCategories = async () => {
@@ -120,49 +122,77 @@ const Index = () => {
   }, []);
 
 
-  const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.shipment_number?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Memoized filtering for performance
+  const filteredItems = useMemo(() => {
+    return items.filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.shipment_number?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, searchTerm, selectedCategory]);
 
-  // Calculate statistics for each condition
-  const readyItems = items.filter(item => item.condition === 'ready');
-  const waitingSortingItems = items.filter(item => item.condition === 'waiting-sorting');
-  const unknownItems = items.filter(item => item.condition === 'unknown');
+  // Paginated items for performance
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredItems.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredItems, currentPage, itemsPerPage]);
 
-  const readyWeight = readyItems.reduce((sum, item) => sum + item.quantity, 0);
-  const readyNetWeight = readyItems.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
-    return sum + netWeight;
-  }, 0);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const waitingSortingWeight = waitingSortingItems.reduce((sum, item) => sum + item.quantity, 0);
-  const waitingSortingNetWeight = waitingSortingItems.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
-    return sum + netWeight;
-  }, 0);
+  // Memoized statistics calculations for performance
+  const statistics = useMemo(() => {
+    const readyItems = items.filter(item => item.condition === 'ready');
+    const waitingSortingItems = items.filter(item => item.condition === 'waiting-sorting');
+    const unknownItems = items.filter(item => item.condition === 'unknown');
 
-  const unknownWeight = unknownItems.reduce((sum, item) => sum + item.quantity, 0);
-  const unknownNetWeight = unknownItems.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
-    return sum + netWeight;
-  }, 0);
+    const readyWeight = readyItems.reduce((sum, item) => sum + item.quantity, 0);
+    const readyNetWeight = readyItems.reduce((sum, item) => {
+      const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
+      return sum + netWeight;
+    }, 0);
 
-  // Calculate total statistics
-  const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalNetWeight = items.reduce((sum, item) => {
-    const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
-    return sum + netWeight;
-  }, 0);
+    const waitingSortingWeight = waitingSortingItems.reduce((sum, item) => sum + item.quantity, 0);
+    const waitingSortingNetWeight = waitingSortingItems.reduce((sum, item) => {
+      const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
+      return sum + netWeight;
+    }, 0);
 
-  // Calculate PPM for each condition
-  const readyPPM = calculateTotalPPM(readyItems);
-  const waitingSortingPPM = calculateTotalPPM(waitingSortingItems);
-  const unknownPPM = calculateTotalPPM(unknownItems);
-  const totalPPM = calculateTotalPPM(items);
+    const unknownWeight = unknownItems.reduce((sum, item) => sum + item.quantity, 0);
+    const unknownNetWeight = unknownItems.reduce((sum, item) => {
+      const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
+      return sum + netWeight;
+    }, 0);
+
+    const totalWeight = items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalNetWeight = items.reduce((sum, item) => {
+      const netWeight = item.quantity - (item.big_bag_weight || 0) - (item.pallet_weight || 0);
+      return sum + netWeight;
+    }, 0);
+
+    return {
+      readyItems,
+      waitingSortingItems,
+      unknownItems,
+      readyWeight,
+      readyNetWeight,
+      waitingSortingWeight,
+      waitingSortingNetWeight,
+      unknownWeight,
+      unknownNetWeight,
+      totalWeight,
+      totalNetWeight
+    };
+  }, [items]);
+
+  // Memoized PPM calculations
+  const ppmData = useMemo(() => ({
+    readyPPM: calculateTotalPPM(statistics.readyItems),
+    waitingSortingPPM: calculateTotalPPM(statistics.waitingSortingItems),
+    unknownPPM: calculateTotalPPM(statistics.unknownItems),
+    totalPPM: calculateTotalPPM(items)
+  }), [statistics.readyItems, statistics.waitingSortingItems, statistics.unknownItems, items]);
 
   const handleAddItem = async (newItem: Omit<InventoryItem, 'id'>) => {
     try {
@@ -321,37 +351,37 @@ const Index = () => {
                 <AlertTriangle className="h-5 w-5 text-green-600" />
                 <CardTitle className="text-lg font-bold text-green-800">{t('stats.ready')}</CardTitle>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-3xl font-bold text-green-900 mb-1">{readyWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-green-600 font-medium">{t('stats.grossWeight')}</p>
-                <p className="text-xs text-green-500">{t('stats.netWeight')}: {readyNetWeight.toFixed(1)} kg</p>
-              </div>
+               <div className="bg-white rounded-lg p-4 shadow-sm">
+                 <div className="text-3xl font-bold text-green-900 mb-1">{statistics.readyWeight.toFixed(1)} KG</div>
+                 <p className="text-sm text-green-600 font-medium">{t('stats.grossWeight')}</p>
+                 <p className="text-xs text-green-500">{t('stats.netWeight')}: {statistics.readyNetWeight.toFixed(1)} kg</p>
+               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 text-center border">
-                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(readyPPM.Ag)}</div>
-                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                  <div className="text-xs text-gray-500">ppm</div>
-                </div>
-                
-                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(readyPPM.Pd)}</div>
-                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                  <div className="text-xs text-blue-500">ppm</div>
-                </div>
-                
-                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
-                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(readyPPM.Au)}</div>
-                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                  <div className="text-xs text-yellow-500">ppm</div>
-                </div>
-                
-                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
-                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(readyPPM.Cu)}%</div>
-                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">pourcent</div>
-                </div>
+                 <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                   <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.readyPPM.Ag)}</div>
+                   <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                   <div className="text-xs text-gray-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                   <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.readyPPM.Pd)}</div>
+                   <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                   <div className="text-xs text-blue-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                   <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.readyPPM.Au)}</div>
+                   <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                   <div className="text-xs text-yellow-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.readyPPM.Cu)}%</div>
+                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                   <div className="text-xs text-orange-500">pourcent</div>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -363,37 +393,37 @@ const Index = () => {
                 <TrendingUp className="h-5 w-5 text-yellow-600" />
                 <CardTitle className="text-lg font-bold text-yellow-800">{t('stats.waiting')}</CardTitle>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-3xl font-bold text-yellow-900 mb-1">{waitingSortingWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-yellow-600 font-medium">{t('stats.grossWeight')}</p>
-                <p className="text-xs text-yellow-500">{t('stats.netWeight')}: {waitingSortingNetWeight.toFixed(1)} kg</p>
-              </div>
+               <div className="bg-white rounded-lg p-4 shadow-sm">
+                 <div className="text-3xl font-bold text-yellow-900 mb-1">{statistics.waitingSortingWeight.toFixed(1)} KG</div>
+                 <p className="text-sm text-yellow-600 font-medium">{t('stats.grossWeight')}</p>
+                 <p className="text-xs text-yellow-500">{t('stats.netWeight')}: {statistics.waitingSortingNetWeight.toFixed(1)} kg</p>
+               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 text-center border">
-                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(waitingSortingPPM.Ag)}</div>
-                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                  <div className="text-xs text-gray-500">ppm</div>
-                </div>
-                
-                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(waitingSortingPPM.Pd)}</div>
-                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                  <div className="text-xs text-blue-500">ppm</div>
-                </div>
-                
-                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
-                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(waitingSortingPPM.Au)}</div>
-                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                  <div className="text-xs text-yellow-500">ppm</div>
-                </div>
-                
-                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
-                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(waitingSortingPPM.Cu)}%</div>
-                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">pourcent</div>
-                </div>
+                 <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                   <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Ag)}</div>
+                   <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                   <div className="text-xs text-gray-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                   <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Pd)}</div>
+                   <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                   <div className="text-xs text-blue-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                   <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Au)}</div>
+                   <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                   <div className="text-xs text-yellow-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Cu)}%</div>
+                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                   <div className="text-xs text-orange-500">pourcent</div>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -405,37 +435,37 @@ const Index = () => {
                 <AlertTriangle className="h-5 w-5 text-gray-600" />
                 <CardTitle className="text-lg font-bold text-gray-800">{t('stats.unknown')}</CardTitle>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-3xl font-bold text-gray-900 mb-1">{unknownWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-gray-600 font-medium">{t('stats.grossWeight')}</p>
-                <p className="text-xs text-gray-500">{t('stats.netWeight')}: {unknownNetWeight.toFixed(1)} kg</p>
-              </div>
+               <div className="bg-white rounded-lg p-4 shadow-sm">
+                 <div className="text-3xl font-bold text-gray-900 mb-1">{statistics.unknownWeight.toFixed(1)} KG</div>
+                 <p className="text-sm text-gray-600 font-medium">{t('stats.grossWeight')}</p>
+                 <p className="text-xs text-gray-500">{t('stats.netWeight')}: {statistics.unknownNetWeight.toFixed(1)} kg</p>
+               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 text-center border">
-                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(unknownPPM.Ag)}</div>
-                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                  <div className="text-xs text-gray-500">ppm</div>
-                </div>
-                
-                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(unknownPPM.Pd)}</div>
-                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                  <div className="text-xs text-blue-500">ppm</div>
-                </div>
-                
-                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
-                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(unknownPPM.Au)}</div>
-                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                  <div className="text-xs text-yellow-500">ppm</div>
-                </div>
-                
-                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
-                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(unknownPPM.Cu)}%</div>
-                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">pourcent</div>
-                </div>
+                 <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                   <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.unknownPPM.Ag)}</div>
+                   <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                   <div className="text-xs text-gray-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                   <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.unknownPPM.Pd)}</div>
+                   <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                   <div className="text-xs text-blue-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                   <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.unknownPPM.Au)}</div>
+                   <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                   <div className="text-xs text-yellow-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.unknownPPM.Cu)}%</div>
+                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                   <div className="text-xs text-orange-500">pourcent</div>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -447,37 +477,37 @@ const Index = () => {
                 <Zap className="h-5 w-5 text-purple-600" />
                 <CardTitle className="text-lg font-bold text-purple-800">{t('stats.total')}</CardTitle>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-3xl font-bold text-purple-900 mb-1">{totalWeight.toFixed(1)} KG</div>
-                <p className="text-sm text-purple-600 font-medium">{t('stats.grossWeight')}</p>
-                <p className="text-xs text-purple-500">{t('stats.netWeight')}: {totalNetWeight.toFixed(1)} kg</p>
-              </div>
+               <div className="bg-white rounded-lg p-4 shadow-sm">
+                 <div className="text-3xl font-bold text-purple-900 mb-1">{statistics.totalWeight.toFixed(1)} KG</div>
+                 <p className="text-sm text-purple-600 font-medium">{t('stats.grossWeight')}</p>
+                 <p className="text-xs text-purple-500">{t('stats.netWeight')}: {statistics.totalNetWeight.toFixed(1)} kg</p>
+               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 text-center border">
-                  <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(totalPPM.Ag)}</div>
-                  <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                  <div className="text-xs text-gray-500">ppm</div>
-                </div>
-                
-                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(totalPPM.Pd)}</div>
-                  <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                  <div className="text-xs text-blue-500">ppm</div>
-                </div>
-                
-                <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
-                  <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(totalPPM.Au)}</div>
-                  <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                  <div className="text-xs text-yellow-500">ppm</div>
-                </div>
-                
-                <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
-                  <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(totalPPM.Cu)}%</div>
-                  <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                  <div className="text-xs text-orange-500">pourcent</div>
-                </div>
+                 <div className="bg-gray-50 rounded-lg p-3 text-center border">
+                   <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.totalPPM.Ag)}</div>
+                   <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
+                   <div className="text-xs text-gray-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                   <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.totalPPM.Pd)}</div>
+                   <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
+                   <div className="text-xs text-blue-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
+                   <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.totalPPM.Au)}</div>
+                   <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
+                   <div className="text-xs text-yellow-500">ppm</div>
+                 </div>
+                 
+                 <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
+                   <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.totalPPM.Cu)}%</div>
+                   <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
+                   <div className="text-xs text-orange-500">pourcent</div>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -529,17 +559,42 @@ const Index = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                onEdit={() => openEditDialog(item)}
-                onDelete={() => handleDeleteItem(item.id)}
-                onImagesLoaded={handleImagesLoaded}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedItems.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  onEdit={() => openEditDialog(item)}
+                  onDelete={() => handleDeleteItem(item.id)}
+                  onImagesLoaded={handleImagesLoaded}
+                />
+              ))}
+            </div>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Ankstesnis
+                </Button>
+                <span className="text-sm text-gray-600">
+                  {currentPage} iš {totalPages} ({filteredItems.length} prekių)
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Kitas
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </main>
 

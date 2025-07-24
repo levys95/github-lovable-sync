@@ -185,37 +185,63 @@ export const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardPro
           </Badge>
         </div>
 
-        {/* Images Gallery - positioned after category info */}
+        {/* Images Gallery - show only 1 image on mobile for performance */}
         {loadedImages && loadedImages.length > 0 && (
           <div className="mb-4">
-            <div className="grid grid-cols-3 gap-2">
-              {loadedImages.slice(0, 3).map((image, index) => (
-                <div 
-                  key={index} 
-                  className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => openImageViewer(index)}
-                >
-                  <img
-                    src={image}
-                    alt={`${item.name} nuotrauka ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                </div>
-              ))}
-              {loadedImages.length > 3 && (
-                <div 
-                  className="aspect-square rounded-lg bg-gray-100 border flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
-                  onClick={() => openImageViewer(3)}
-                >
-                  <span className="text-xs text-gray-500 font-medium">
-                    +{loadedImages.length - 3}
-                  </span>
-                </div>
-              )}
+            {/* Show single image on mobile */}
+            <div className="block sm:hidden">
+              <div 
+                className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => openImageViewer(0)}
+              >
+                <img
+                  src={loadedImages[0]}
+                  alt={`${item.name} nuotrauka`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                {loadedImages.length > 1 && (
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                    +{loadedImages.length - 1}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Show grid on desktop */}
+            <div className="hidden sm:block">
+              <div className="grid grid-cols-3 gap-2">
+                {loadedImages.slice(0, 3).map((image, index) => (
+                  <div 
+                    key={index} 
+                    className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => openImageViewer(index)}
+                  >
+                    <img
+                      src={image}
+                      alt={`${item.name} nuotrauka ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ))}
+                {loadedImages.length > 3 && (
+                  <div 
+                    className="aspect-square rounded-lg bg-gray-100 border flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                    onClick={() => openImageViewer(3)}
+                  >
+                    <span className="text-xs text-gray-500 font-medium">
+                      +{loadedImages.length - 3}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
