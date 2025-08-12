@@ -157,38 +157,39 @@ export function BurgerMenu({ categories, selectedCategory, counts, totalCount, o
               </button>
 
               {isComponentsOpen && (
-                <div className="ml-6 space-y-1">
-                  {/* Tous les composants */}
-                  <SheetClose asChild>
-                    <Link
-                      to="/components"
-                      className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
-                    >
-                      <div className="flex items-center gap-4">
-                        <Package className="h-5 w-5" />
-                        <span className="text-base font-medium">{tAll}</span>
-                      </div>
-                      <Badge variant="secondary" className="px-2 py-1 text-sm">{totalComponents}</Badge>
-                    </Link>
-                  </SheetClose>
-
-
-                  {/* Liste des composants */}
-                  {filtered.map(({ id, label, route, Icon, count }) => (
-                    <SheetClose asChild key={id}>
+                <ScrollArea className="ml-6 pr-2 max-h-[60vh]">
+                  <div className="space-y-1">
+                    {/* Tous les composants */}
+                    <SheetClose asChild>
                       <Link
-                        to={route}
+                        to="/components"
                         className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
                       >
                         <div className="flex items-center gap-4">
-                          <Icon className="h-5 w-5" />
-                          <span className="text-base font-medium">{label}</span>
+                          <Package className="h-5 w-5" />
+                          <span className="text-base font-medium">{tAll}</span>
                         </div>
-                        <Badge variant="outline" className="px-2 py-1 text-sm">{count}</Badge>
+                        <Badge variant="secondary" className="px-2 py-1 text-sm">{totalComponents}</Badge>
                       </Link>
                     </SheetClose>
-                  ))}
-                </div>
+
+                    {/* Liste des composants */}
+                    {filtered.map(({ id, label, route, Icon, count }) => (
+                      <SheetClose asChild key={id}>
+                        <Link
+                          to={route}
+                          className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
+                        >
+                          <div className="flex items-center gap-4">
+                            <Icon className="h-5 w-5" />
+                            <span className="text-base font-medium">{label}</span>
+                          </div>
+                          <Badge variant="outline" className="px-2 py-1 text-sm">{count}</Badge>
+                        </Link>
+                      </SheetClose>
+                    ))}
+                  </div>
+                </ScrollArea>
               )}
             </div>
           </div>
