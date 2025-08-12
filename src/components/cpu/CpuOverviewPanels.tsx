@@ -33,15 +33,15 @@ export const CpuOverviewPanels: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      <Card className="p-4">
+      <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 shadow-sm">
         <p className="text-sm text-muted-foreground">Total CPU</p>
         <p className="text-2xl font-semibold">{total}</p>
       </Card>
-      <Card className="p-4">
+      <Card className="p-4 bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 shadow-sm">
         <p className="text-sm text-muted-foreground">Intel</p>
         <p className="text-2xl font-semibold">{intel}</p>
       </Card>
-      <Card className="p-4">
+      <Card className="p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 shadow-sm">
         <p className="text-sm text-muted-foreground">AMD</p>
         <p className="text-2xl font-semibold">{amd}</p>
       </Card>
