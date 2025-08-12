@@ -16,10 +16,19 @@ type Row = {
   base_clock_ghz: number | null;
 };
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+let _supabase: ReturnType<typeof createClient> | null = null;
+function getClient() {
+  if (!_supabase) {
+    if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+      throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    }
+    _supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+  }
+  return _supabase;
+}
 
 async function fetchText(url: string): Promise<string> {
   console.log("[cpu-catalog-sync] Fetch:", url);
@@ -144,7 +153,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 async function getExistingModelsByBrand(brand: Row["brand"]): Promise<Set<string>> {
   const existing = new Set<string>();
   // Pull only brand+model (reduce payload)
-  const { data, error } = await supabase
+  const { data, error } = await getClient()
     .from("cpu_catalog")
     .select("brand,model")
     .eq("brand", brand)
@@ -165,7 +174,7 @@ async function insertRowsSafe(rows: Row[]): Promise<number> {
   let inserted = 0;
   const chunks = chunk(rows, 500);
   for (const c of chunks) {
-    const { error, count } = await supabase
+    const { error, count } = await getClient()
       .from("cpu_catalog")
       .insert(c, { count: "exact" });
     if (error) {

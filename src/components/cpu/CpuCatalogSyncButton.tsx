@@ -22,8 +22,13 @@ export const CpuCatalogSyncButton: React.FC = () => {
         toast.error("Échec de la mise à jour du catalogue CPU.");
         return;
       }
+      if (data && (data as any).success === false) {
+        console.error("cpu-catalog-sync returned error:", (data as any).error);
+        toast.error(`Erreur: ${(data as any).error ?? "échec de la fonction"}`);
+        return;
+      }
       console.log("cpu-catalog-sync result:", data);
-      toast.success(`Catalogue mis à jour (${data?.inserted || 0} nouveaux modèles)`);
+      toast.success(`Catalogue mis à jour (${(data as any)?.inserted || 0} nouveaux modèles)`);
       // Invalider le cache des listes du catalogue
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["cpuCatalogFamilies"] }),
