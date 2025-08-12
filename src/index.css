@@ -53,6 +53,12 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* RAM generation semantic colors */
+    --ram-ddr5: 210 90% 45%; /* blue-ish */
+    --ram-ddr4: 160 65% 40%; /* green-ish */
+    --ram-ddr3: 45 95% 50%;  /* amber/gold */
+    --ram-ddr3l: 280 65% 55%; /* purple */
   }
 
   .dark {

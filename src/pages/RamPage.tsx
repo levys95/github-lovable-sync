@@ -3,6 +3,9 @@ import React, { useEffect } from 'react';
 import { RamForm } from '@/components/ram/RamForm';
 import { RamList } from '@/components/ram/RamList';
 import { Card, CardContent } from '@/components/ui/card';
+import { BurgerMenu } from '@/components/BurgerMenu';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { RamOverviewPanels } from '@/components/ram/RamOverviewPanels';
 
 const RamPage: React.FC = () => {
   useEffect(() => {
@@ -25,20 +28,42 @@ const RamPage: React.FC = () => {
     link.href = window.location.origin + '/ram';
   }, []);
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold">Stock RAM</h1>
-      </div>
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 bg-background border-b">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 md:h-16">
+            <div className="flex items-center gap-3">
+              <BurgerMenu categories={[]} selectedCategory={null} counts={{}} onSelect={() => {}} />
+              <img 
+                src="/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png" 
+                alt="Logo SFDE" 
+                className="h-7 w-auto md:h-8"
+              />
+              <h1 className="hidden sm:block text-xl md:text-2xl font-bold">Stock RAM</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <LanguageSelector />
+            </div>
+          </div>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RamForm />
-        <Card>
-          <CardContent className="p-4 md:p-6 space-y-4">
-            <h3 className="text-lg font-semibold">Inventaire</h3>
-            <RamList />
-          </CardContent>
-        </Card>
-      </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+        <RamOverviewPanels />
+
+        <section aria-labelledby="ram-form-list">
+          <h2 id="ram-form-list" className="sr-only">Formulaire d'ajout et inventaire RAM</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RamForm />
+            <Card>
+              <CardContent className="p-4 md:p-6 space-y-4">
+                <h2 className="text-lg font-semibold">Inventaire</h2>
+                <RamList />
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
