@@ -39,7 +39,7 @@ const RamPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <BurgerMenu categories={[]} selectedCategory={null} counts={{}} onSelect={() => {}} />
               <Link to="/" className="flex items-center">
-                <Logo className="h-14 w-auto md:h-16" />
+                <Logo className="h-16 w-auto md:h-20" />
               </Link>
             </div>
             <h1 className="hidden sm:block text-xl md:text-2xl font-medium absolute left-1/2 transform -translate-x-1/2">Stock RAM</h1>

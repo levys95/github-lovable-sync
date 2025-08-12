@@ -358,7 +358,7 @@ const Index = () => {
               />
               <Link to="/" className="flex items-center">
                 <Logo 
-                  className="h-14 w-auto md:h-16"
+                  className="h-16 w-auto md:h-20"
                   alt={language === 'fr' ? 'Logo SFDE' : 'SFDE logotipas'}
                 />
               </Link>

@@ -55,8 +55,8 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Menu" className="h-12 w-12">
-          <Menu className="h-7 w-7" />
+        <Button variant="ghost" size="icon" aria-label="Menu" className="h-14 w-14">
+          <Menu className="h-8 w-8" />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[96vw] sm:w-[32rem] p-0">
