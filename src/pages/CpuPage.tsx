@@ -4,14 +4,18 @@ import { Cpu } from "lucide-react";
 import { CpuForm } from "@/components/cpu/CpuForm";
 import { CpuList } from "@/components/cpu/CpuList";
 import { CpuOverviewPanels } from "@/components/cpu/CpuOverviewPanels";
+import { CpuCatalogSyncButton } from "@/components/cpu/CpuCatalogSyncButton";
 
 const CpuPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto max-w-6xl px-4 py-6 flex items-center gap-3">
-          <Cpu className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-semibold">Stock Processeurs</h1>
+        <div className="mx-auto max-w-6xl px-4 py-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Cpu className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-semibold">Stock Processeurs</h1>
+          </div>
+          <CpuCatalogSyncButton />
         </div>
       </header>
 
