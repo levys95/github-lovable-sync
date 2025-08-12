@@ -157,7 +157,7 @@ export function BurgerMenu({ categories, selectedCategory, counts, totalCount, o
               </button>
 
               {isComponentsOpen && (
-                <ScrollArea className="ml-6 pr-2 max-h-[60vh]">
+                <ScrollArea className="ml-6 pr-2 h-[60vh]">
                   <div className="space-y-1">
                     {/* Tous les composants */}
                     <SheetClose asChild>
