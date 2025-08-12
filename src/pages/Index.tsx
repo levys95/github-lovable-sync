@@ -345,7 +345,7 @@ const Index = () => {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 md:h-16">
+          <div className="flex justify-between items-center h-14 md:h-16 relative">
             <div className="flex items-center gap-2 sm:gap-3">
               <BurgerMenu
                 categories={categoriesInStock}
@@ -362,8 +362,8 @@ const Index = () => {
                   alt={language === 'fr' ? 'Logo SFDE' : 'SFDE logotipas'}
                 />
               </Link>
-              <h1 className="hidden sm:block text-xl md:text-2xl font-bold text-foreground">{t('header.title')}</h1>
             </div>
+            <h1 className="hidden sm:block text-xl md:text-2xl font-medium text-foreground absolute left-1/2 transform -translate-x-1/2">{t('header.title')}</h1>
             <div className="flex items-center gap-2 sm:gap-3">
               <LanguageSelector />
               <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2" aria-label={t('header.addItem')}>
