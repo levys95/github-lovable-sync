@@ -50,40 +50,40 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Menu">
-          <Menu className="h-6 w-6" />
+        <Button variant="ghost" size="icon" aria-label="Menu" className="h-12 w-12">
+          <Menu className="h-7 w-7" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[92vw] sm:w-96 p-0">
-        <div className="p-5 border-b">
-          <h2 className="text-2xl font-semibold">{tTitle}</h2>
-          <div className="mt-3 flex items-center gap-2">
+      <SheetContent side="left" className="w-[96vw] sm:w-[32rem] p-0">
+        <div className="p-6 border-b">
+          <h2 className="text-3xl font-semibold">{tTitle}</h2>
+          <div className="mt-4 flex items-center gap-2">
             <div className="relative w-full">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={tSearch}
-                className="h-10 pl-10"
+                className="h-12 pl-12 text-base"
               />
             </div>
           </div>
         </div>
 
-        <ScrollArea className="h-[calc(100dvh-120px)] sm:h-[calc(100vh-120px)] p-2">
+        <ScrollArea className="h-[calc(100dvh-120px)] sm:h-[calc(100vh-120px)] p-3">
           <div className="space-y-1">
             <SheetClose asChild>
               <button
                 type="button"
                 onClick={() => onSelect("all")}
                 data-active={selectedCategory == null}
-                className="w-full flex items-center justify-between rounded-lg px-4 py-3 hover:bg-muted data-[active=true]:bg-muted"
+                className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
               >
-                <div className="flex items-center gap-3">
-                  <Package className="h-5 w-5" />
-                  <span className="text-base font-medium">{tAll}</span>
+                <div className="flex items-center gap-4">
+                  <Package className="h-6 w-6" />
+                  <span className="text-lg font-medium">{tAll}</span>
                 </div>
-                <Badge variant="secondary" className="px-2.5 py-1 text-sm">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
+                <Badge variant="secondary" className="px-3 py-1.5 text-base">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
               </button>
             </SheetClose>
 
@@ -96,13 +96,13 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
                     type="button"
                     onClick={() => onSelect(raw)}
                     data-active={active}
-                    className="w-full flex items-center justify-between rounded-lg px-4 py-3 hover:bg-muted data-[active=true]:bg-muted"
+                    className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="h-5 w-5" />
-                      <span className="text-base font-medium">{label}</span>
+                    <div className="flex items-center gap-4">
+                      <Icon className="h-6 w-6" />
+                      <span className="text-lg font-medium">{label}</span>
                     </div>
-                    {count > 0 && <Badge variant="outline" className="px-2.5 py-1 text-sm">{count}</Badge>}
+                    {count > 0 && <Badge variant="outline" className="px-3 py-1.5 text-base">{count}</Badge>}
                   </button>
                 </SheetClose>
               );
