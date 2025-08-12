@@ -100,6 +100,24 @@ export const CpuForm: React.FC = () => {
     return models.find((m) => m.id === catalogId) || null;
   }, [catalogId, models]);
 
+  const sortedFamilies = useMemo(() => {
+    if (!families) return [] as string[];
+    if (brand !== "INTEL") return families;
+    const PRIORITY = [
+      "Core i3", "Core i5", "Core i7", "Core i9",
+      "Core Ultra 5", "Core Ultra 7", "Core Ultra 9",
+      "Xeon E3", "Xeon E5", "Xeon E7",
+      "Xeon Bronze", "Xeon Silver", "Xeon Gold", "Xeon Platinum", "Xeon Max",
+    ];
+    const order = new Map(PRIORITY.map((v, i) => [v, i] as const));
+    return [...families].sort((a, b) => {
+      const ai = order.has(a) ? order.get(a)! : 1000;
+      const bi = order.has(b) ? order.get(b)! : 1000;
+      if (ai !== bi) return ai - bi;
+      return a.localeCompare(b);
+    });
+  }, [families, brand]);
+
   const addMutation = useMutation({
     mutationKey: ["cpuInventoryInsert"],
     mutationFn: async () => {
@@ -209,7 +227,7 @@ export const CpuForm: React.FC = () => {
               <SelectValue placeholder={brand ? (famLoading ? "Chargement..." : (families?.length ? "Choisir une gamme" : "Aucune donnée")) : "Choisir d'abord la marque"} />
             </SelectTrigger>
             <SelectContent>
-              {(families || []).map((f) => (
+              {(sortedFamilies || []).map((f) => (
                 <SelectItem key={f} value={f}>{f}</SelectItem>
               ))}
             </SelectContent>
