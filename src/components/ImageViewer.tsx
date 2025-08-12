@@ -36,6 +36,7 @@ export const ImageViewer = ({ images, isOpen, onClose, initialIndex = 0 }: Image
       <DialogContent 
         className="max-w-5xl w-full h-[90vh] p-0 bg-black/95"
         onKeyDown={handleKeyDown}
+        aria-describedby={undefined}
       >
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Close button */}

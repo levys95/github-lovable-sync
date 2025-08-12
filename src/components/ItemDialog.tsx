@@ -108,7 +108,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>
             {item ? t('dialog.edit') : t('dialog.add')}

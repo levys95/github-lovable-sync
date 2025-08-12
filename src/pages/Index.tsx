@@ -13,6 +13,7 @@ import { calculateTotalPPM } from '@/utils/ppmCalculations';
 import { translateCategoryLabel } from '@/utils/category-i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface InventoryItem {
   id: string;
@@ -44,6 +45,7 @@ const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [connectionError, setConnectionError] = useState(false);
   const itemsPerPage = 20;
 
   // Load categories from Supabase with fallback
@@ -60,6 +62,7 @@ const Index = () => {
       setCategories(categoryNames);
     } catch (error) {
       console.error('Error loading categories:', error);
+      setConnectionError(true);
       // Fallback categories for demo
       setCategories(['Telefoni', 'Kompiuteriai', 'Televizoriai', 'Kita elektronika']);
     }
@@ -99,6 +102,7 @@ const Index = () => {
       // Images will be loaded on demand when cards become visible
     } catch (error) {
       console.error('Error loading items:', error);
+      setConnectionError(true);
       // Don't show error toast for connection issues - just log
       // Use demo data when Supabase is not available
       setItems([]);
@@ -345,6 +349,16 @@ const Index = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {connectionError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>{language === 'fr' ? 'Connexion à la base indisponible' : 'Nepavyksta prisijungti prie duomenų bazės'}</AlertTitle>
+            <AlertDescription>
+              {language === 'fr'
+                ? 'Affichage en mode dégradé: filtres et aperçu restent visibles, mais les données réelles ne sont pas chargées.'
+                : 'Rodoma supaprastinta peržiūra: filtrai ir suvestinė matomi, bet tikri duomenys neįkelti.'}
+            </AlertDescription>
+          </Alert>
+        )}
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Ready Items */}
