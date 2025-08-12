@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { MANUFACTURERS, RAM_GENERATIONS, FREQUENCIES_BY_GEN, RamGeneration, RamManufacturer } from './constants';
-import { Trash2 } from 'lucide-react';
-
+import { Trash2, FileText } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 type RamRow = {
   id: string;
   generation: RamGeneration;
@@ -96,6 +97,62 @@ export const RamList: React.FC = () => {
     }
   });
 
+  const fetchAsDataUrl = async (url: string): Promise<string> => {
+    try {
+      const res = await fetch(url + '?v=2', { cache: 'no-cache' });
+      const blob = await res.blob();
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  const generatePdf = async (r: RamRow) => {
+    const doc = new jsPDF();
+
+    // Logo
+    const logo = await fetchAsDataUrl('/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png');
+    if (logo) {
+      doc.addImage(logo, 'PNG', 15, 12, 28, 28);
+    }
+
+    // Title
+    doc.setFontSize(16);
+    doc.text('Fiche Module RAM', 50, 20);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleString()}`, 50, 27);
+
+    // Table
+    const body = [
+      ['Génération', r.generation],
+      ['Capacité', `${r.capacity_gb} Go`],
+      ['Fréquence', `${r.frequency_mhz} MHz`],
+      ['Fabricant', r.manufacturer],
+      ['Quantité', String(r.quantity)],
+      ['Localisation', r.location || '-'],
+      ['Notes', r.notes || '-'],
+      ['Créé le', new Date(r.created_at).toLocaleString()],
+    ];
+
+    autoTable(doc, {
+      startY: 45,
+      head: [['Champ', 'Valeur']],
+      body,
+      theme: 'grid',
+      styles: { fontSize: 11 },
+      headStyles: { fillColor: [23, 37, 84], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+    } as any);
+
+    const filename = `RAM_${r.generation}_${r.capacity_gb}Go_${r.frequency_mhz}MHz_${r.manufacturer}.pdf`;
+    doc.save(filename);
+  };
+
   const availableFreqs = gen === 'all' ? [] : FREQUENCIES_BY_GEN[gen];
 
   return (
@@ -172,6 +229,9 @@ export const RamList: React.FC = () => {
                 </TableCell>
                 <TableCell className="max-w-[220px] truncate">{r.location || '-'}</TableCell>
                 <TableCell className="flex items-center gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => generatePdf(r)}>
+                    <FileText className="h-4 w-4 mr-1" /> PDF
+                  </Button>
                   <Button variant="destructive" size="sm" onClick={() => del.mutate(r.id)}>
                     <Trash2 className="h-4 w-4 mr-1" /> Supprimer
                   </Button>
