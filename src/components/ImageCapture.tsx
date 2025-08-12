@@ -291,9 +291,9 @@ export const ImageCapture = ({ images, onImagesChange, maxImages = 5, allowVideo
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h3 className="text-sm font-medium text-gray-700">Photos & Vidéos ({images.length}/{maxImages})</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
           <Button
             type="button"
             variant="outline"
