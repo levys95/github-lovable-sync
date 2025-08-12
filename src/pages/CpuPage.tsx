@@ -1,6 +1,5 @@
-
 import React, { useEffect } from "react";
-import { Cpu as CpuIcon, LogOut } from "lucide-react";
+import { Cpu as CpuIcon, LogOut, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CpuForm } from "@/components/cpu/CpuForm";
 import { CpuList } from "@/components/cpu/CpuList";
@@ -10,6 +9,7 @@ import { BurgerMenu } from "@/components/BurgerMenu";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const CpuPage: React.FC = () => {
   useEffect(() => {
@@ -66,7 +66,7 @@ const CpuPage: React.FC = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
         <section className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <CpuIcon className="h-6 w-6 text-primary" />
@@ -77,12 +77,27 @@ const CpuPage: React.FC = () => {
 
         <CpuOverviewPanels />
 
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="order-2 lg:order-1">
-            <CpuList />
-          </div>
-          <div className="order-1 lg:order-2">
+        <section aria-labelledby="cpu-form-list">
+          <h2 id="cpu-form-list" className="sr-only">Formulaire d'ajout et inventaire CPU</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <CpuForm />
+            <Card>
+              <CardContent className="p-4 md:p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">Inventaire</h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.dispatchEvent(new CustomEvent('generate-full-cpu-pdf'))}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="h-4 w-4" />
+                    PDF Complet
+                  </Button>
+                </div>
+                <CpuList />
+              </CardContent>
+            </Card>
           </div>
         </section>
       </main>
