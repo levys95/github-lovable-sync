@@ -141,6 +141,7 @@ export const CpuForm: React.FC = () => {
       toast.success("Processeur ajouté au stock");
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["cpuInventoryList"] }),
+        qc.invalidateQueries({ queryKey: ["cpuInventoryListOverview"] }),
       ]);
       setQuantity(1);
       setLocation("");
