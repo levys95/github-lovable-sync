@@ -13,7 +13,11 @@ export type CategoryKey =
   | 'au_350'
   | 'au_400'
   | 'au_800'
-  | 'au_1000_plus';
+  | 'au_1000_plus'
+  | 'phones'
+  | 'computers'
+  | 'tvs'
+  | 'other_electronics';
 
 interface CategoryInfo {
   fr: string;
@@ -36,6 +40,27 @@ const categories: Record<CategoryKey, CategoryInfo> = {
     fr: 'China Phone',
     lt: 'Kinų telefonai',
     aliases: ['telephone chinois', 'kinu telefonas']
+  },
+  // Generic electronics categories observed in data (LT) => provide FR translations
+  phones: { 
+    fr: 'Téléphones', 
+    lt: 'Telefonai', 
+    aliases: ['telephones', 'telephone', 'telefonai', 'telefoni', 'telefonas'] 
+  },
+  computers: { 
+    fr: 'Ordinateurs', 
+    lt: 'Kompiuteriai', 
+    aliases: ['ordinateurs', 'ordinateur', 'kompiuteriai', 'kompiuteris'] 
+  },
+  tvs: { 
+    fr: 'Téléviseurs', 
+    lt: 'Televizoriai', 
+    aliases: ['televiseurs', 'television', 'tv', 'televizoriai', 'televizorius'] 
+  },
+  other_electronics: { 
+    fr: 'Autres électroniques', 
+    lt: 'Kita elektronika', 
+    aliases: ['autres electroniques', 'autre electronique', 'autre électronique', 'kita elektronika'] 
   },
   au_15: { fr: '15 au', lt: '15 Au', aliases: ['15  au', '15au'] },
   au_30: { fr: '30 au', lt: '30 Au', aliases: ['30  au', '30au'] },
