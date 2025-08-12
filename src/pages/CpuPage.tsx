@@ -5,13 +5,15 @@ import { CpuForm } from "@/components/cpu/CpuForm";
 import { CpuList } from "@/components/cpu/CpuList";
 import { CpuOverviewPanels } from "@/components/cpu/CpuOverviewPanels";
 import { CpuCatalogSyncButton } from "@/components/cpu/CpuCatalogSyncButton";
-import { CpuCatalogCleanupButton } from "@/components/cpu/CpuCatalogCleanupButton";
+
 import { CpuCatalogCoverage } from "@/components/cpu/CpuCatalogCoverage";
 import { BurgerMenu } from "@/components/BurgerMenu";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const CpuPage: React.FC = () => {
   useEffect(() => {
@@ -35,6 +37,21 @@ const CpuPage: React.FC = () => {
     }
     link.href = window.location.origin + "/processeurs";
   }, []);
+
+  const { data: lastUpdatedAt } = useQuery({
+    queryKey: ["cpuCatalogLastUpdated"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cpu_catalog")
+        .select("updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.updated_at ?? null;
+    },
+    staleTime: 20000,
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,8 +91,10 @@ const CpuPage: React.FC = () => {
             <CpuIcon className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-semibold">Stock Processeurs</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <CpuCatalogCleanupButton />
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground hidden sm:inline">
+              Dernière mise à jour: {lastUpdatedAt ? new Date(lastUpdatedAt as string).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—"}
+            </span>
             <CpuCatalogSyncButton />
           </div>
         </section>
