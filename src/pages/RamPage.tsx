@@ -35,14 +35,14 @@ const RamPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-background border-b">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 md:h-16">
+          <div className="flex justify-between items-center h-14 md:h-16 relative">
             <div className="flex items-center gap-3">
               <BurgerMenu categories={[]} selectedCategory={null} counts={{}} onSelect={() => {}} />
               <Link to="/" className="flex items-center">
                 <Logo className="h-14 w-auto md:h-16" />
               </Link>
-              <h1 className="hidden sm:block text-xl md:text-2xl font-medium text-center">Stock RAM</h1>
             </div>
+            <h1 className="hidden sm:block text-xl md:text-2xl font-medium absolute left-1/2 transform -translate-x-1/2">Stock RAM</h1>
             <div className="flex items-center gap-3">
               <LanguageSelector />
               <Button 
