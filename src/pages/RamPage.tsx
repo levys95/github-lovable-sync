@@ -41,7 +41,7 @@ const RamPage: React.FC = () => {
               <Link to="/" className="flex items-center">
                 <Logo className="h-14 w-auto md:h-16" />
               </Link>
-              <h1 className="hidden sm:block text-xl md:text-2xl font-bold">Stock RAM</h1>
+              <h1 className="hidden sm:block text-xl md:text-2xl font-medium text-center">Stock RAM</h1>
             </div>
             <div className="flex items-center gap-3">
               <LanguageSelector />
