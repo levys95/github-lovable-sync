@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Menu, Cpu, MemoryStick, HardDrive, Package, Search as SearchIcon } from "lucide-react";
+import { Menu, Cpu, MemoryStick, HardDrive, Package, Search as SearchIcon, Home, ChevronDown, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ const getIconForCategory = (cat: string) => {
 export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: BurgerMenuProps) {
   const { language } = useLanguage();
   const [query, setQuery] = useState("");
+  const [isComponentsOpen, setIsComponentsOpen] = useState(true);
 
   const labels = useMemo(() => {
     return categories.map((c) => ({
@@ -44,9 +46,11 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
   }, [labels, query]);
 
   const tAll = language === "fr" ? "Tous les composants" : "Visi komponentai";
-  const tTitle = language === "fr" ? "Composants" : "Komponentai";
+  const tTitle = language === "fr" ? "Navigation" : "Navigacija";
   const tSearch = language === "fr" ? "Rechercher une catégorie…" : "Ieškoti kategorijos…";
   const tRam = language === "fr" ? "Stock RAM" : "RAM atsargos";
+  const tOverview = language === "fr" ? "Vue d'ensemble" : "Apžvalga";
+  const tComponents = language === "fr" ? "Composants" : "Komponentai";
 
   return (
     <Sheet>
@@ -71,58 +75,96 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
           </div>
         </div>
 
-        <ScrollArea className="h-[calc(100dvh-120px)] sm:h-[calc(100vh-120px)] p-3">
+        <div className="h-[calc(100dvh-120px)] sm:h-[calc(100vh-120px)] p-3">
           <div className="space-y-1">
+            {/* Vue d'ensemble */}
             <SheetClose asChild>
+              <Link
+                to="/"
+                className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
+              >
+                <div className="flex items-center gap-4">
+                  <Home className="h-6 w-6" />
+                  <span className="text-lg font-medium">{tOverview}</span>
+                </div>
+              </Link>
+            </SheetClose>
+
+            {/* Section Composants */}
+            <div className="space-y-1">
               <button
                 type="button"
-                onClick={() => onSelect("all")}
-                data-active={selectedCategory == null}
-                className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
+                onClick={() => setIsComponentsOpen(!isComponentsOpen)}
+                className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
               >
                 <div className="flex items-center gap-4">
                   <Package className="h-6 w-6" />
-                  <span className="text-lg font-medium">{tAll}</span>
+                  <span className="text-lg font-medium">{tComponents}</span>
                 </div>
-                <Badge variant="secondary" className="px-3 py-1.5 text-base">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
+                {isComponentsOpen ? (
+                  <ChevronDown className="h-5 w-5" />
+                ) : (
+                  <ChevronRight className="h-5 w-5" />
+                )}
               </button>
-            </SheetClose>
 
-            {/* Lien vers la page RAM */}
-            <SheetClose asChild>
-              <a
-                href="/ram"
-                className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
-              >
-                <div className="flex items-center gap-4">
-                  <MemoryStick className="h-6 w-6" />
-                  <span className="text-lg font-medium">{tRam}</span>
+              {isComponentsOpen && (
+                <div className="ml-6 space-y-1">
+                  {/* Tous les composants */}
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      onClick={() => onSelect("all")}
+                      data-active={selectedCategory == null}
+                      className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
+                    >
+                      <div className="flex items-center gap-4">
+                        <Package className="h-5 w-5" />
+                        <span className="text-base font-medium">{tAll}</span>
+                      </div>
+                      <Badge variant="secondary" className="px-2 py-1 text-sm">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
+                    </button>
+                  </SheetClose>
+
+                  {/* Stock RAM */}
+                  <SheetClose asChild>
+                    <Link
+                      to="/ram"
+                      className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
+                    >
+                      <div className="flex items-center gap-4">
+                        <MemoryStick className="h-5 w-5" />
+                        <span className="text-base font-medium">{tRam}</span>
+                      </div>
+                    </Link>
+                  </SheetClose>
+
+                  {/* Autres catégories */}
+                  {filtered.map(({ raw, label, count }) => {
+                    const Icon = getIconForCategory(raw);
+                    const active = selectedCategory === raw;
+                    return (
+                      <SheetClose asChild key={raw}>
+                        <button
+                          type="button"
+                          onClick={() => onSelect(raw)}
+                          data-active={active}
+                          className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
+                        >
+                          <div className="flex items-center gap-4">
+                            <Icon className="h-5 w-5" />
+                            <span className="text-base font-medium">{label}</span>
+                          </div>
+                          {count > 0 && <Badge variant="outline" className="px-2 py-1 text-sm">{count}</Badge>}
+                        </button>
+                      </SheetClose>
+                    );
+                  })}
                 </div>
-              </a>
-            </SheetClose>
-
-            {filtered.map(({ raw, label, count }) => {
-              const Icon = getIconForCategory(raw);
-              const active = selectedCategory === raw;
-              return (
-                <SheetClose asChild key={raw}>
-                  <button
-                    type="button"
-                    onClick={() => onSelect(raw)}
-                    data-active={active}
-                    className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Icon className="h-6 w-6" />
-                      <span className="text-lg font-medium">{label}</span>
-                    </div>
-                    {count > 0 && <Badge variant="outline" className="px-3 py-1.5 text-base">{count}</Badge>}
-                  </button>
-                </SheetClose>
-              );
-            })}
+              )}
+            </div>
           </div>
-        </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );
