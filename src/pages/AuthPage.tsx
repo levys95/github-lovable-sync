@@ -71,7 +71,7 @@ export default function AuthPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-center mb-2">
-            <Logo className="h-10 w-auto" />
+            <Logo className="h-16 w-auto md:h-20" />
           </div>
           <CardTitle className="text-center">
             {mode === "signin" ? "Connexion" : "Créer un compte"}

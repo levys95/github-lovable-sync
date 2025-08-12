@@ -356,7 +356,7 @@ const Index = () => {
                 }}
               />
               <Logo 
-                className="h-7 w-auto md:h-8"
+                className="h-10 w-auto md:h-12"
                 alt={language === 'fr' ? 'Logo SFDE' : 'SFDE logotipas'}
               />
               <h1 className="hidden sm:block text-xl md:text-2xl font-bold text-foreground">{t('header.title')}</h1>
