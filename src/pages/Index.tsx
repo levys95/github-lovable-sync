@@ -14,6 +14,7 @@ import { translateCategoryLabel } from '@/utils/category-i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { BurgerMenu } from '@/components/BurgerMenu';
 
 interface InventoryItem {
   id: string;
@@ -147,6 +148,16 @@ const Index = () => {
   }, [filteredItems, currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  // Categories present in stock (from items) and counts per category
+  const categoriesInStock = useMemo(() => Array.from(new Set(items.map(i => i.category))), [items]);
+  const categoryCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const it of items) {
+      map[it.category] = (map[it.category] || 0) + 1;
+    }
+    return map;
+  }, [items]);
 
   // Memoized statistics calculations for performance
   const statistics = useMemo(() => {
@@ -334,6 +345,15 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
+              <BurgerMenu
+                categories={categoriesInStock}
+                selectedCategory={selectedCategory === 'all' ? null : selectedCategory}
+                counts={categoryCounts}
+                onSelect={(cat) => {
+                  setSelectedCategory(cat === 'all' ? 'all' : cat);
+                  setCurrentPage(1);
+                }}
+              />
               <img 
                 src="/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png" 
                 alt="Logo SFDE" 
