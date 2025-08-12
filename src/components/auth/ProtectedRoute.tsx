@@ -11,21 +11,22 @@ export default function ProtectedRoute() {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-      setHasSession(!!data.session);
-      setIsLoading(false);
-    });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setHasSession(!!session);
       setIsLoading(false);
-      console.log("[Auth] State changed:", _event, !!session);
+      console.log("[Auth] State changed:", event, !!session);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      setHasSession(!!session);
+      setIsLoading(false);
     });
 
     return () => {
       mounted = false;
-      authListener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 

@@ -204,6 +204,9 @@ const Index = () => {
   const handleAddItem = async (newItem: Omit<InventoryItem, 'id'>) => {
     try {
       // Transform component format to database format
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const dbItem = {
         name: newItem.name,
         category: newItem.category,
@@ -217,11 +220,12 @@ const Index = () => {
         pallet_weight: newItem.pallet_weight,
         images: newItem.images || [],
         shipment_number: newItem.shipment_number,
+        user_id: user.id,
       };
 
       const { error } = await supabase
         .from('inventory_items')
-        .insert([dbItem]);
+        .insert([dbItem as any]);
 
       if (error) throw error;
 

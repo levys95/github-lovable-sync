@@ -44,7 +44,11 @@ export default function AuthPage() {
   const handleSignUp = async () => {
     setPending(true);
     console.log("[Auth] Sign up with password");
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}${from}` }
+    });
     setPending(false);
 
     if (error) {
