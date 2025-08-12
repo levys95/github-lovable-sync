@@ -19,6 +19,18 @@ type Row = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+// Exclude families from being imported again
+const EXCLUDED_FAMILIES = new Set<string>([
+  "Athlon",
+  "Athlon X2",
+  "Athlon X4",
+  "Atom",
+  "Celeron",
+  "Pentium",
+  "Pentium Gold",
+  "Pentium Silver",
+]);
+
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getClient() {
   if (!_supabase) {
@@ -377,6 +389,7 @@ async function runSync(scope: "intel" | "amd" | "all") {
       }
     }
     intelRows = uniqueByKey(intelRows);
+    intelRows = intelRows.filter(r => !EXCLUDED_FAMILIES.has(r.family));
   }
 
   if (scope === "amd" || scope === "all") {
@@ -394,6 +407,7 @@ async function runSync(scope: "intel" | "amd" | "all") {
       }
     }
     amdRows = uniqueByKey(amdRows);
+    amdRows = amdRows.filter(r => !EXCLUDED_FAMILIES.has(r.family));
   }
 
   // Keep everything; generations are best-effort and may be non-numeric for some families
