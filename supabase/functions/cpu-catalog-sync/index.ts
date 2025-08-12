@@ -132,6 +132,151 @@ function extractAMD(content: string): Row[] {
   return rows;
 }
 
+// Additional Intel extractors: Core Ultra, Pentium/Celeron/Atom/Xeon
+function extractIntelCoreUltra(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+  // e.g., "Core Ultra 7 155H", "Core Ultra 5 125U", "Core Ultra 9 185H"
+  const re = /\bCore\s+Ultra\s+(5|7|9)\s+(\d{3})([A-Z]{0,3})\b/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const tier = m[1];
+    const digits = m[2];
+    const suffix = (m[3] || "").toUpperCase();
+    const model = `Core Ultra ${tier} ${digits}${suffix}`;
+    const brand: Row["brand"] = "INTEL";
+    const family = `Core Ultra ${tier}`;
+    // Use first digit as "series" for Ultra
+    const generation = digits ? String(parseInt(digits[0], 10)) : "Ultra";
+    const key = `${brand}|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand, family, generation, model, base_clock_ghz: null });
+  }
+  return rows;
+}
+
+function extractIntelOther(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+
+  // Pentium (incl. Gold/Silver) e.g., "Pentium G4560", "Pentium Gold G6400"
+  const pentiumRe = /\bPentium(?:\s+(Gold|Silver))?\s+([A-Z]?\d{3,5})([A-Z0-9]{0,3})\b/gi;
+  let m: RegExpExecArray | null;
+  while ((m = pentiumRe.exec(content)) !== null) {
+    const flavor = m[1] ? `Pentium ${m[1]}` : "Pentium";
+    const code = m[2].toUpperCase();
+    const suff = (m[3] || "").toUpperCase();
+    const model = `${flavor} ${code}${suff}`;
+    const generation = /\d/.test(code) ? String(parseInt(code.replace(/\D/g, "")[0] || "0", 10) * 1000 || "0") : "0";
+    const key = `INTEL|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "INTEL", family: flavor, generation, model, base_clock_ghz: null });
+  }
+
+  // Celeron e.g., "Celeron G5905", "Celeron N4020"
+  const celeronRe = /\bCeleron\s+([A-Z]?\d{3,5})([A-Z0-9]{0,3})\b/gi;
+  while ((m = celeronRe.exec(content)) !== null) {
+    const code = m[1].toUpperCase();
+    const suff = (m[2] || "").toUpperCase();
+    const model = `Celeron ${code}${suff}`;
+    const generation = /\d/.test(code) ? String(parseInt(code.replace(/\D/g, "")[0] || "0", 10) * 1000 || "0") : "0";
+    const key = `INTEL|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "INTEL", family: "Celeron", generation, model, base_clock_ghz: null });
+  }
+
+  // Atom e.g., "Atom x5-Z8350", "Atom N280"
+  const atomRe = /\bAtom\s+([a-z]\d-)?([A-Z]?\d{3,4})([A-Z0-9]{0,3})\b/gi;
+  while ((m = atomRe.exec(content)) !== null) {
+    const codePrefix = m[1] ? m[1].toUpperCase() : "";
+    const code = m[2].toUpperCase();
+    const suff = (m[3] || "").toUpperCase();
+    const model = `Atom ${codePrefix}${code}${suff}`.trim();
+    const generation = /\d/.test(code) ? String(parseInt(code.replace(/\D/g, "")[0] || "0", 10) * 1000 || "0") : "0";
+    const key = `INTEL|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "INTEL", family: "Atom", generation, model, base_clock_ghz: null });
+  }
+
+  // Xeon e.g., "Xeon E-2288G", "Xeon W-1290P", "Xeon E5-2690 v4"
+  const xeonRe = /\bXeon\s+((?:E|W|D|L|Platinum|Gold|Silver|Bronze)(?:-\w+)?)\s*(\d{3,5})(?:\s*(v\d))?([A-Z0-9]{0,3})\b/gi;
+  while ((m = xeonRe.exec(content)) !== null) {
+    const series = m[1].replace(/\s+/g, " ");
+    const digits = m[2];
+    const v = (m[3] || "").toLowerCase();
+    const suff = (m[4] || "").toUpperCase();
+    const model = `Xeon ${series} ${digits}${v ? " " + v : ""}${suff}`;
+    const generation = v ? v : String(parseInt(digits[0], 10) || 0);
+    const key = `INTEL|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "INTEL", family: "Xeon", generation, model, base_clock_ghz: null });
+  }
+
+  return rows;
+}
+
+// AMD additional extractors: Threadripper, EPYC, Athlon
+function extractAMDThreadripper(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+  const re = /\bRyzen\s+Threadripper\s+(\d{4,5})([A-Z0-9]{0,3})\b/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const digits = m[1];
+    const suff = (m[2] || "").toUpperCase();
+    const model = `Ryzen Threadripper ${digits}${suff}`;
+    const generation = String(parseInt(digits[0], 10) * 1000 || 1000);
+    const key = `AMD|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "AMD", family: "Ryzen Threadripper", generation, model, base_clock_ghz: null });
+  }
+  return rows;
+}
+
+function extractAMDEpyc(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+  const re = /\bEPYC\s+(\d{4,5})([A-Z0-9]{0,3})\b/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const digits = m[1];
+    const suff = (m[2] || "").toUpperCase();
+    const model = `EPYC ${digits}${suff}`;
+    const generation = String(parseInt(digits[0], 10) * 1000 || 1000);
+    const key = `AMD|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "AMD", family: "EPYC", generation, model, base_clock_ghz: null });
+  }
+  return rows;
+}
+
+function extractAMDAthlon(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+  // e.g., "Athlon 3000G", "Athlon X4 860K"
+  const re = /\bAthlon(?:\s+(X2|X3|X4))?\s+(\d{3,4})([A-Z0-9]{0,3})\b/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const series = m[1] ? `Athlon ${m[1]}` : "Athlon";
+    const digits = m[2];
+    const suff = (m[3] || "").toUpperCase();
+    const model = `${series} ${digits}${suff}`;
+    const generation = digits.length >= 4 ? String(parseInt(digits[0], 10) * 1000) : digits;
+    const key = `AMD|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand: "AMD", family: series, generation, model, base_clock_ghz: null });
+  }
+  return rows;
+}
+ 
 function uniqueByKey(rows: Row[]): Row[] {
   const seen = new Set<string>();
   const out: Row[] = [];
@@ -193,13 +338,26 @@ async function insertRowsSafe(rows: Row[]): Promise<number> {
 
 async function runSync(scope: "intel" | "amd" | "all") {
   const intelSources = [
+    // Core i-series
     "https://en.wikipedia.org/wiki/List_of_Intel_Core_i3_microprocessors",
     "https://en.wikipedia.org/wiki/List_of_Intel_Core_i5_microprocessors",
     "https://en.wikipedia.org/wiki/List_of_Intel_Core_i7_microprocessors",
     "https://en.wikipedia.org/wiki/List_of_Intel_Core_i9_microprocessors",
+    // Core Ultra series (Meteor/Arrow Lake pages often contain model lists)
+    "https://en.wikipedia.org/wiki/Intel_Core_(14th_generation)",
+    "https://en.wikipedia.org/wiki/Meteor_Lake",
+    // Legacy/value lines
+    "https://en.wikipedia.org/wiki/List_of_Intel_Pentium_processors",
+    "https://en.wikipedia.org/wiki/List_of_Intel_Celeron_processors",
+    "https://en.wikipedia.org/wiki/List_of_Intel_Atom_microprocessors",
+    // Xeon lines
+    "https://en.wikipedia.org/wiki/List_of_Intel_Xeon_processors",
   ];
   const amdSources = [
     "https://en.wikipedia.org/wiki/List_of_AMD_Ryzen_microprocessors",
+    "https://en.wikipedia.org/wiki/AMD_Ryzen_Threadripper",
+    "https://en.wikipedia.org/wiki/AMD_Epyc",
+    "https://en.wikipedia.org/wiki/List_of_AMD_Athlon_microprocessors",
   ];
 
   let intelRows: Row[] = [];
@@ -209,7 +367,11 @@ async function runSync(scope: "intel" | "amd" | "all") {
     for (const url of intelSources) {
       try {
         const html = await fetchText(url);
-        intelRows.push(...extractIntel(html));
+        intelRows.push(
+          ...extractIntel(html),
+          ...extractIntelCoreUltra(html),
+          ...extractIntelOther(html),
+        );
       } catch (e) {
         console.error("[intel] Source failed:", url, e);
       }
@@ -221,7 +383,12 @@ async function runSync(scope: "intel" | "amd" | "all") {
     for (const url of amdSources) {
       try {
         const html = await fetchText(url);
-        amdRows.push(...extractAMD(html));
+        amdRows.push(
+          ...extractAMD(html),
+          ...extractAMDThreadripper(html),
+          ...extractAMDEpyc(html),
+          ...extractAMDAthlon(html),
+        );
       } catch (e) {
         console.error("[amd] Source failed:", url, e);
       }
@@ -229,10 +396,7 @@ async function runSync(scope: "intel" | "amd" | "all") {
     amdRows = uniqueByKey(amdRows);
   }
 
-  // Filter by generation thresholds
-  intelRows = intelRows.filter(r => Number(r.generation) >= 4);
-  // AMD starts at 1000 series
-  amdRows = amdRows.filter(r => Number(r.generation) >= 1000);
+  // Keep everything; generations are best-effort and may be non-numeric for some families
 
   // De-duplicate against DB
   let toInsert: Row[] = [];
@@ -258,6 +422,8 @@ async function runSync(scope: "intel" | "amd" | "all") {
   return {
     scope,
     found: totalFound,
+    foundIntel: intelRows.length,
+    foundAmd: amdRows.length,
     prepared: toInsertCount,
     inserted,
     sample: toInsert.slice(0, 10).map(r => `${r.brand} • ${r.family} • Gen ${r.generation} • ${r.model}`),

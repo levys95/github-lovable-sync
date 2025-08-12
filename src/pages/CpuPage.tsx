@@ -5,6 +5,7 @@ import { CpuForm } from "@/components/cpu/CpuForm";
 import { CpuList } from "@/components/cpu/CpuList";
 import { CpuOverviewPanels } from "@/components/cpu/CpuOverviewPanels";
 import { CpuCatalogSyncButton } from "@/components/cpu/CpuCatalogSyncButton";
+import { CpuCatalogCoverage } from "@/components/cpu/CpuCatalogCoverage";
 import { BurgerMenu } from "@/components/BurgerMenu";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Logo } from "@/components/Logo";
@@ -74,6 +75,8 @@ const CpuPage: React.FC = () => {
           </div>
           <CpuCatalogSyncButton />
         </section>
+
+        <CpuCatalogCoverage />
 
         <CpuOverviewPanels />
 
