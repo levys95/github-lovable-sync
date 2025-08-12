@@ -100,6 +100,19 @@ const translations = {
     'media.hint.mobileWeb': 'Bakstelėkite mygtukus nuotraukoms ar vaizdo įrašams daryti',
     'media.hint.desktop': 'Naudokite kamerą arba įkelkite failus',
 
+    // Toasts / Errors
+    'toast.successTitle': 'Sėkmė',
+    'toast.errorTitle': 'Klaida',
+    'toast.addSuccess': 'Prekė sėkmingai pridėta',
+    'toast.addError': 'Nepavyko pridėti prekės',
+    'toast.updateSuccess': 'Prekė sėkmingai atnaujinta',
+    'toast.updateError': 'Nepavyko atnaujinti prekės',
+    'toast.deleteSuccess': 'Prekė sėkmingai ištrinta',
+    'toast.deleteError': 'Nepavyko ištrinti prekės',
+
+    // Misc
+    'loading': 'Kraunama...',
+
     // Language
     'language.lithuanian': 'Lietuvių',
     'language.french': 'Prancūzų',
@@ -193,6 +206,19 @@ const translations = {
     'media.hint.mobileNative': 'Utilisez les boutons Photo et Vidéo pour capturer du contenu',
     'media.hint.mobileWeb': 'Appuyez sur les boutons pour prendre des photos ou vidéos',
     'media.hint.desktop': 'Utilisez la caméra ou téléchargez des fichiers',
+
+    // Toasts / Errors
+    'toast.successTitle': 'Succès',
+    'toast.errorTitle': 'Erreur',
+    'toast.addSuccess': 'Article ajouté avec succès',
+    'toast.addError': "Échec de l'ajout de l'article",
+    'toast.updateSuccess': 'Article mis à jour avec succès',
+    'toast.updateError': "Échec de la mise à jour de l'article",
+    'toast.deleteSuccess': 'Article supprimé avec succès',
+    'toast.deleteError': "Échec de la suppression de l'article",
+
+    // Misc
+    'loading': 'Chargement...',
 
     // Language
     'language.lithuanian': 'Lituanien',

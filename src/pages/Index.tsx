@@ -226,8 +226,8 @@ const Index = () => {
       if (error) throw error;
 
       toast({
-        title: "Sėkmė",
-        description: "Prekė sėkmingai pridėta",
+        title: t('toast.successTitle'),
+        description: t('toast.addSuccess'),
       });
 
       setIsDialogOpen(false);
@@ -235,8 +235,8 @@ const Index = () => {
     } catch (error) {
       console.error('Error adding item:', error);
       toast({
-        title: "Klaida",
-        description: "Nepavyko pridėti prekės",
+        title: t('toast.errorTitle'),
+        description: t('toast.addError'),
         variant: "destructive",
       });
     }
@@ -268,8 +268,8 @@ const Index = () => {
       if (error) throw error;
 
       toast({
-        title: "Sėkmė",
-        description: "Prekė sėkmingai atnaujinta",
+        title: t('toast.successTitle'),
+        description: t('toast.updateSuccess'),
       });
 
       setSelectedItem(null);
@@ -278,8 +278,8 @@ const Index = () => {
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
-        title: "Klaida",
-        description: "Nepavyko atnaujinti prekės",
+        title: t('toast.errorTitle'),
+        description: t('toast.updateError'),
         variant: "destructive",
       });
     }
@@ -295,16 +295,16 @@ const Index = () => {
       if (error) throw error;
 
       toast({
-        title: "Sėkmė",
-        description: "Prekė sėkmingai ištrinta",
+        title: t('toast.successTitle'),
+        description: t('toast.deleteSuccess'),
       });
 
       loadItems(); // Reload items
     } catch (error) {
       console.error('Error deleting item:', error);
       toast({
-        title: "Klaida",
-        description: "Nepavyko ištrinti prekės",
+        title: t('toast.errorTitle'),
+        description: t('toast.deleteError'),
         variant: "destructive",
       });
     }
@@ -318,7 +318,7 @@ const Index = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <div className="text-lg">Kraunama...</div>
+        <div className="text-lg">{t('loading')}</div>
       </div>
     );
   }
