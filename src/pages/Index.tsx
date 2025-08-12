@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BurgerMenu } from '@/components/BurgerMenu';
 import { Logo } from '@/components/Logo';
+import { Link } from 'react-router-dom';
 
 interface InventoryItem {
   id: string;
@@ -355,10 +356,12 @@ const Index = () => {
                   setCurrentPage(1);
                 }}
               />
-              <Logo 
-                className="h-14 w-auto md:h-16"
-                alt={language === 'fr' ? 'Logo SFDE' : 'SFDE logotipas'}
-              />
+              <Link to="/" className="flex items-center">
+                <Logo 
+                  className="h-14 w-auto md:h-16"
+                  alt={language === 'fr' ? 'Logo SFDE' : 'SFDE logotipas'}
+                />
+              </Link>
               <h1 className="hidden sm:block text-xl md:text-2xl font-bold text-foreground">{t('header.title')}</h1>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">

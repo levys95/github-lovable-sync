@@ -1,5 +1,6 @@
 
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { RamForm } from '@/components/ram/RamForm';
 import { RamList } from '@/components/ram/RamList';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,7 +38,9 @@ const RamPage: React.FC = () => {
           <div className="flex justify-between items-center h-14 md:h-16">
             <div className="flex items-center gap-3">
               <BurgerMenu categories={[]} selectedCategory={null} counts={{}} onSelect={() => {}} />
-              <Logo className="h-14 w-auto md:h-16" />
+              <Link to="/" className="flex items-center">
+                <Logo className="h-14 w-auto md:h-16" />
+              </Link>
               <h1 className="hidden sm:block text-xl md:text-2xl font-bold">Stock RAM</h1>
             </div>
             <div className="flex items-center gap-3">
