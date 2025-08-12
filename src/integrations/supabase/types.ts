@@ -41,6 +41,122 @@ export type Database = {
         }
         Relationships: []
       }
+      cpu_catalog: {
+        Row: {
+          base_clock_ghz: number | null
+          boost_clock_ghz: number | null
+          brand: Database["public"]["Enums"]["cpu_brand"]
+          cores: number | null
+          created_at: string
+          family: string
+          generation: string
+          id: string
+          model: string
+          release_date: string | null
+          socket: string | null
+          tdp_watts: number | null
+          threads: number | null
+          updated_at: string
+        }
+        Insert: {
+          base_clock_ghz?: number | null
+          boost_clock_ghz?: number | null
+          brand: Database["public"]["Enums"]["cpu_brand"]
+          cores?: number | null
+          created_at?: string
+          family: string
+          generation: string
+          id?: string
+          model: string
+          release_date?: string | null
+          socket?: string | null
+          tdp_watts?: number | null
+          threads?: number | null
+          updated_at?: string
+        }
+        Update: {
+          base_clock_ghz?: number | null
+          boost_clock_ghz?: number | null
+          brand?: Database["public"]["Enums"]["cpu_brand"]
+          cores?: number | null
+          created_at?: string
+          family?: string
+          generation?: string
+          id?: string
+          model?: string
+          release_date?: string | null
+          socket?: string | null
+          tdp_watts?: number | null
+          threads?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cpu_inventory: {
+        Row: {
+          base_clock_ghz: number | null
+          brand: Database["public"]["Enums"]["cpu_brand"]
+          catalog_id: string | null
+          created_at: string
+          family: string
+          files: Json
+          generation: string
+          id: string
+          images: Json
+          location: string | null
+          model: string
+          notes: string | null
+          quantity: number
+          updated_at: string
+          user_id: string
+          videos: Json
+        }
+        Insert: {
+          base_clock_ghz?: number | null
+          brand: Database["public"]["Enums"]["cpu_brand"]
+          catalog_id?: string | null
+          created_at?: string
+          family: string
+          files?: Json
+          generation: string
+          id?: string
+          images?: Json
+          location?: string | null
+          model: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id: string
+          videos?: Json
+        }
+        Update: {
+          base_clock_ghz?: number | null
+          brand?: Database["public"]["Enums"]["cpu_brand"]
+          catalog_id?: string | null
+          created_at?: string
+          family?: string
+          files?: Json
+          generation?: string
+          id?: string
+          images?: Json
+          location?: string | null
+          model?: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+          videos?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cpu_inventory_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "cpu_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_items: {
         Row: {
           big_bag_weight: number | null
@@ -157,6 +273,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      cpu_brand: "INTEL" | "AMD"
       ram_generation: "DDR5" | "DDR4" | "DDR3" | "DDR3L"
       ram_manufacturer: "SAMSUNG" | "HYNIX" | "MICRON" | "KINGSTON"
     }
@@ -286,6 +403,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      cpu_brand: ["INTEL", "AMD"],
       ram_generation: ["DDR5", "DDR4", "DDR3", "DDR3L"],
       ram_manufacturer: ["SAMSUNG", "HYNIX", "MICRON", "KINGSTON"],
     },

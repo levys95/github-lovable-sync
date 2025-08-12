@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
 import RamPage from "./pages/RamPage";
 import ComponentsPage from "./pages/ComponentsPage";
+import CpuPage from "./pages/CpuPage";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/components" element={<ComponentsPage />} />
               <Route path="/ram" element={<RamPage />} />
+              <Route path="/cpus" element={<CpuPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Route>
