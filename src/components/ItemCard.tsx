@@ -8,6 +8,7 @@ import { MetalContentDisplay } from './MetalContent';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ImageViewer } from './ImageViewer';
 import { supabase } from '@/integrations/supabase/client';
+import { translateCategoryLabel } from '@/utils/category-i18n';
 
 interface InventoryItem {
   id: string;
@@ -71,7 +72,7 @@ const formatDate = (dateString: string): string => {
 };
 
 const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<string[]>(item.images || []);
@@ -175,7 +176,7 @@ const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => 
         <div className="mb-4">
           <div className="flex flex-wrap gap-2 mb-2">
             <Badge variant="secondary" className="text-xs">
-              {item.category}
+              {translateCategoryLabel(item.category, language)}
             </Badge>
             
             {item.brand && (
@@ -331,7 +332,7 @@ const ItemCard = ({ item, onEdit, onDelete, onImagesLoaded }: ItemCardProps) => 
               <AlertDialogHeader>
                 <AlertDialogTitle>{t('confirm.title')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  {t('confirm.description').replace('{category}', item.category)}
+                  {t('confirm.description').replace('{category}', translateCategoryLabel(item.category, language))}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

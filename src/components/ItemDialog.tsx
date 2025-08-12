@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MetalContentDisplay } from './MetalContent';
 import { ImageCapture } from './ImageCapture';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { translateCategoryLabel } from '@/utils/category-i18n';
 
 interface InventoryItem {
   id: string;
@@ -39,7 +40,7 @@ const locationZones = [
 ];
 
 export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDialogProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -139,7 +140,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                   <SelectContent>
                     {categories.filter(cat => cat !== 'all').map(category => (
                       <SelectItem key={category} value={category}>
-                        {category}
+                        {translateCategoryLabel(category, language)}
                       </SelectItem>
                     ))}
                   </SelectContent>
