@@ -10,100 +10,11 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      categories: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      "Gestionnaire Entrepôt E-Déchets": {
-        Row: {
-          created_at: string
-          id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
-        }
-        Relationships: []
-      }
-      inventory_items: {
-        Row: {
-          big_bag_weight: number | null
-          brand: string | null
-          category: string
-          condition: string
-          created_at: string
-          date_added: string
-          description: string | null
-          id: string
-          images: Json | null
-          location: string
-          name: string
-          pallet_weight: number | null
-          quantity: number
-          shipment_number: string | null
-          updated_at: string
-        }
-        Insert: {
-          big_bag_weight?: number | null
-          brand?: string | null
-          category: string
-          condition: string
-          created_at?: string
-          date_added?: string
-          description?: string | null
-          id?: string
-          images?: Json | null
-          location: string
-          name: string
-          pallet_weight?: number | null
-          quantity?: number
-          shipment_number?: string | null
-          updated_at?: string
-        }
-        Update: {
-          big_bag_weight?: number | null
-          brand?: string | null
-          category?: string
-          condition?: string
-          created_at?: string
-          date_added?: string
-          description?: string | null
-          id?: string
-          images?: Json | null
-          location?: string
-          name?: string
-          pallet_weight?: number | null
-          quantity?: number
-          shipment_number?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
