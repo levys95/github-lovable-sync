@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BurgerMenu } from '@/components/BurgerMenu';
+import { Logo } from '@/components/Logo';
 
 interface InventoryItem {
   id: string;
@@ -354,10 +355,9 @@ const Index = () => {
                   setCurrentPage(1);
                 }}
               />
-              <img 
-                src="/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png" 
-                alt="Logo SFDE" 
+              <Logo 
                 className="h-7 w-auto md:h-8"
+                alt={language === 'fr' ? 'Logo SFDE' : 'SFDE logotipas'}
               />
               <h1 className="hidden sm:block text-xl md:text-2xl font-bold text-foreground">{t('header.title')}</h1>
             </div>
