@@ -170,12 +170,17 @@ function extractIntelCoreUltra(content: string): Row[] {
 
 // Xeon Scalable (Silver, Bronze, Gold, Max)
 function xeonScalableGenFromDigits(digits: string): number {
-  const prefix = parseInt(digits.slice(0, 2), 10);
-  if ([31,41,51,61].includes(prefix)) return 1;
-  if ([32,42,52,62].includes(prefix)) return 2;
-  if ([43,53,63].includes(prefix)) return 3;
-  if ([64,94].includes(prefix)) return 4;
-  if ([65,95].includes(prefix)) return 5;
+  const p = parseInt(digits.slice(0, 2), 10);
+  const gen1 = new Set([31, 41, 51, 61, 81]);
+  const gen2 = new Set([32, 42, 52, 62, 82]);
+  const gen3 = new Set([43, 53, 63, 83]);
+  const gen4 = new Set([64, 84, 94]);
+  const gen5 = new Set([65, 85, 95]);
+  if (gen1.has(p)) return 1;
+  if (gen2.has(p)) return 2;
+  if (gen3.has(p)) return 3;
+  if (gen4.has(p)) return 4;
+  if (gen5.has(p)) return 5;
   return 1;
 }
 
@@ -184,8 +189,8 @@ function extractIntelXeonScalable(content: string): Row[] {
   const seen = new Set<string>();
   let m: RegExpExecArray | null;
 
-  // Xeon Silver / Bronze / Gold
-  const reSbg = /\bXeon\s+(Silver|Bronze|Gold)\s+(\d{4,5})([A-Z0-9]{0,2})\b/gi;
+  // Xeon Silver / Bronze / Gold / Platinum
+  const reSbg = /\bXeon\s+(Silver|Bronze|Gold|Platinum)\s+(\d{4,5})([A-Z0-9]{0,2})\b/gi;
   while ((m = reSbg.exec(content)) !== null) {
     const tier = m[1];
     const digits = m[2];
@@ -218,6 +223,32 @@ function extractIntelXeonScalable(content: string): Row[] {
   return rows;
 }
 
+// Xeon legacy (E3/E5/E7) v3+ only
+function extractIntelXeonLegacyV3Plus(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+  let m: RegExpExecArray | null;
+  const re = /\bXeon\s+(E[357])\s*-\s*(\d{3,4})\s*(v(\d))?([A-Z0-9]{0,2})\b/gi;
+  while ((m = re.exec(content)) !== null) {
+    const famCode = m[1].toUpperCase(); // E3/E5/E7
+    const digits = m[2];
+    const vFull = (m[3] || "").toLowerCase(); // e.g. v3
+    const vNum = m[4] ? parseInt(m[4], 10) : NaN;
+    const suff = (m[5] || "").toUpperCase();
+
+    if (!Number.isFinite(vNum) || vNum < 3) continue; // keep v3+
+
+    const brand: Row["brand"] = "INTEL";
+    const family = `Xeon ${famCode}`;
+    const model = `Xeon ${famCode}-${digits} v${vNum}${suff}`;
+    const generation = `v${vNum}`;
+    const key = `${brand}|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand, family, generation, model, base_clock_ghz: null });
+  }
+  return rows;
+}
 function extractIntelOther(content: string): Row[] {
   const rows: Row[] = [];
   const seen = new Set<string>();
@@ -394,12 +425,7 @@ async function runSync(scope: "intel" | "amd" | "all") {
     "https://en.wikipedia.org/wiki/List_of_Intel_Core_i7_microprocessors",
     "https://en.wikipedia.org/wiki/List_of_Intel_Core_i9_microprocessors",
     // Core Ultra series (Meteor/Arrow Lake pages often contain model lists)
-    "https://en.wikipedia.org/wiki/Intel_Core_(14th_generation)",
     "https://en.wikipedia.org/wiki/Meteor_Lake",
-    // Legacy/value lines
-    "https://en.wikipedia.org/wiki/List_of_Intel_Pentium_processors",
-    "https://en.wikipedia.org/wiki/List_of_Intel_Celeron_processors",
-    "https://en.wikipedia.org/wiki/List_of_Intel_Atom_microprocessors",
     // Xeon lines
     "https://en.wikipedia.org/wiki/List_of_Intel_Xeon_processors",
   ];
@@ -421,6 +447,7 @@ async function runSync(scope: "intel" | "amd" | "all") {
           ...extractIntel(html),
           ...extractIntelCoreUltra(html),
           ...extractIntelXeonScalable(html),
+          ...extractIntelXeonLegacyV3Plus(html),
           ...extractIntelOther(html),
         );
       } catch (e) {

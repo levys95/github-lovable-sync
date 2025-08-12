@@ -62,14 +62,81 @@ serve(async (req) => {
 
     // 1) Delete specific AMD and INTEL families
     const amdFamilies = ["Athlon", "Athlon X2", "Athlon X4"];
-    const intelFamilies = ["Atom", "Celeron", "Pentium Gold", "Pentium Silver"];
+    const intelFamilies = ["Atom", "Celeron", "Pentium Gold", "Pentium Silver", "Pentium"];
 
     const [amdRes, intelRes] = await Promise.all([
       deleteByFamilies("AMD", amdFamilies),
       deleteByFamilies("INTEL", intelFamilies),
     ]);
 
-    // 2) Delete everything released before (approx.) Intel Core 4th gen time frame
+    // 2) Xeon cleanup: remove any Xeon family not in the allowed list
+    const allowedXeonFamilies = new Set([
+      "Xeon Silver",
+      "Xeon Bronze",
+      "Xeon Gold",
+      "Xeon Platinum",
+      "Xeon Max",
+      "Xeon E3",
+      "Xeon E5",
+      "Xeon E7",
+    ]);
+
+    // Delete generic and unwanted Xeon families (Xeon, Xeon D, Xeon W, Xeon L, etc.)
+    const { data: delUnwantedXeon, error: delUnwantedErr } = await getClient()
+      .from("cpu_catalog")
+      .delete()
+      .eq("brand", "INTEL")
+      .ilike("family", "Xeon%")
+      .neq("family", "Xeon Silver")
+      .neq("family", "Xeon Bronze")
+      .neq("family", "Xeon Gold")
+      .neq("family", "Xeon Platinum")
+      .neq("family", "Xeon Max")
+      .neq("family", "Xeon E3")
+      .neq("family", "Xeon E5")
+      .neq("family", "Xeon E7")
+      .select("id");
+    if (delUnwantedErr) throw delUnwantedErr;
+
+    // Delete E3/E5/E7 entries with version < v3
+    const xeonE = ["Xeon E3", "Xeon E5", "Xeon E7"] as const;
+    let xeonOldDeleted = 0;
+    for (const fam of xeonE) {
+      for (const v of ["v1", "v2"]) {
+        const { data, error } = await getClient()
+          .from("cpu_catalog")
+          .delete()
+          .eq("brand", "INTEL")
+          .eq("family", fam)
+          .ilike("model", `% ${v}%`)
+          .select("id");
+        if (error) throw error;
+        xeonOldDeleted += (data as any[])?.length || 0;
+      }
+      // Delete entries without any version suffix (no ' v')
+      const { data: noV, error: noVErr } = await getClient()
+        .from("cpu_catalog")
+        .delete()
+        .eq("brand", "INTEL")
+        .eq("family", fam)
+        .not("model", "ilike", "% v%")
+        .select("id");
+      if (noVErr) throw noVErr;
+      xeonOldDeleted += (noV as any[])?.length || 0;
+    }
+
+    // 3) Delete Intel Core generations prior to 4 (safety in case release_date is null)
+    const coreFamilies = ["Core i3", "Core i5", "Core i7", "Core i9"];
+    const { data: delOldCore, error: delOldCoreErr } = await getClient()
+      .from("cpu_catalog")
+      .delete()
+      .eq("brand", "INTEL")
+      .in("family", coreFamilies)
+      .in("generation", ["1", "2", "3"]) 
+      .select("id");
+    if (delOldCoreErr) throw delOldCoreErr;
+
+    // 4) Delete everything released before (approx.) Intel Core 4th gen time frame
     // Haswell (4th gen) launched in 2013. Use mid-2013 as a cutoff date
     const cutoff = "2013-06-01";
     const olderRes = await deleteOlderThan(cutoff);
@@ -79,10 +146,19 @@ serve(async (req) => {
       deleted: {
         amd_families: amdRes.count,
         intel_families: intelRes.count,
+        xeon_unwanted: (delUnwantedXeon as any[])?.length || 0,
+        xeon_e_vlt3: xeonOldDeleted,
+        old_core_gens: (delOldCore as any[])?.length || 0,
         older_than_cutoff: olderRes.count,
         cutoff_date: cutoff,
       },
-      totalDeleted: amdRes.count + intelRes.count + olderRes.count,
+      totalDeleted:
+        amdRes.count +
+        intelRes.count +
+        ((delUnwantedXeon as any[])?.length || 0) +
+        xeonOldDeleted +
+        ((delOldCore as any[])?.length || 0) +
+        olderRes.count,
     };
 
     console.log("[cpu-catalog-cleanup] Done:", result);

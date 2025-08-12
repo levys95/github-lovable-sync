@@ -29,6 +29,15 @@ export const CpuCatalogSyncButton: React.FC = () => {
       }
       console.log("cpu-catalog-sync result:", data);
       toast.success(`Catalogue mis à jour (${(data as any)?.inserted || 0} nouveaux modèles)`);
+      // Lancer le nettoyage des entrées non conformes (Xeon non voulus, Core < 4e gen, etc.)
+      const { data: cleanupData, error: cleanupError } = await supabase.functions.invoke("cpu-catalog-cleanup");
+      if (cleanupError) {
+        console.error("cpu-catalog-cleanup error:", cleanupError);
+        toast.error("Nettoyage du catalogue: échec");
+      } else {
+        console.log("cpu-catalog-cleanup result:", cleanupData);
+        toast.success("Nettoyage du catalogue terminé");
+      }
       // Invalider le cache des listes du catalogue
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["cpuCatalogFamilies"] }),
