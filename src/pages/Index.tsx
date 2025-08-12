@@ -32,7 +32,8 @@ interface InventoryItem {
 const Index = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  // Force rebuild to clear cache - v2
+  // CardTitle import fix - force rebuild
+  
   
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
