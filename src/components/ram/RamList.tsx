@@ -99,7 +99,8 @@ export const RamList: React.FC = () => {
 
   const fetchAsDataUrl = async (url: string): Promise<string> => {
     try {
-      const res = await fetch(url + '?v=2', { cache: 'no-cache' });
+      const v = String(Math.floor(Date.now() / 1000));
+      const res = await fetch(`${url}?v=${v}`, { cache: 'no-cache' });
       const blob = await res.blob();
       return await new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -115,8 +116,9 @@ export const RamList: React.FC = () => {
   const generatePdf = async (r: RamRow) => {
     const doc = new jsPDF();
 
-    // Logo
-    const logo = await fetchAsDataUrl('/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png');
+    // Logo - prefer canonical, fallback to default
+    let logo = await fetchAsDataUrl('/lovable-uploads/logo.png');
+    if (!logo) logo = await fetchAsDataUrl('/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png');
     if (logo) {
       doc.addImage(logo, 'PNG', 15, 12, 28, 28);
     }
