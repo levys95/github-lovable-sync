@@ -18,18 +18,21 @@ export const Logo: React.FC<LogoProps> = ({ className, alt = 'Logo SFDE', srcOve
     const v = String(Math.floor(Date.now() / 1000));
 
     const tryPreferred = async () => {
-      try {
-        // Prefer a canonical logo path if present
-        const preferred = `/lovable-uploads/logo.png?v=${v}`;
-        const res = await fetch(preferred, { method: 'HEAD', cache: 'no-cache' });
-        if (active && res.ok) {
-          setResolvedSrc(preferred);
-          return;
-        }
-      } catch {}
-      if (active) {
-        setResolvedSrc(`${srcOverride || SRC}?v=${v}`);
+      const candidates = [
+        `/lovable-uploads/logo_principal.png?v=${v}`,
+        `/lovable-uploads/logo.png?v=${v}`,
+        `${srcOverride || SRC}?v=${v}`,
+      ];
+      for (const url of candidates) {
+        try {
+          const res = await fetch(url, { method: 'HEAD', cache: 'no-cache' });
+          if (active && res.ok) {
+            setResolvedSrc(url);
+            return;
+          }
+        } catch {}
       }
+      if (active) setResolvedSrc(`${srcOverride || SRC}?v=${v}`);
     };
 
     tryPreferred();

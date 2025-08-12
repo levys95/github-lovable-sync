@@ -116,8 +116,9 @@ export const RamList: React.FC = () => {
   const generatePdf = async (r: RamRow) => {
     const doc = new jsPDF();
 
-    // Logo - prefer canonical, fallback to default
-    let logo = await fetchAsDataUrl('/lovable-uploads/logo.png');
+    // Logo - prefer new path, then legacy, then default
+    let logo = await fetchAsDataUrl('/lovable-uploads/logo_principal.png');
+    if (!logo) logo = await fetchAsDataUrl('/lovable-uploads/logo.png');
     if (!logo) logo = await fetchAsDataUrl('/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png');
     if (logo) {
       doc.addImage(logo, 'PNG', 15, 12, 28, 28);
