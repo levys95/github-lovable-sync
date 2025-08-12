@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Logo } from "@/components/Logo";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -69,6 +70,9 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
         <CardHeader>
+          <div className="flex justify-center mb-2">
+            <Logo className="h-10 w-auto" />
+          </div>
           <CardTitle className="text-center">
             {mode === "signin" ? "Connexion" : "Créer un compte"}
           </CardTitle>
