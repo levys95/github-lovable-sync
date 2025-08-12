@@ -112,18 +112,16 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
                 <div className="ml-6 space-y-1">
                   {/* Tous les composants */}
                   <SheetClose asChild>
-                    <button
-                      type="button"
-                      onClick={() => onSelect("all")}
-                      data-active={selectedCategory == null}
-                      className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
+                    <Link
+                      to="/components"
+                      className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
                     >
                       <div className="flex items-center gap-4">
                         <Package className="h-5 w-5" />
                         <span className="text-base font-medium">{tAll}</span>
                       </div>
                       <Badge variant="secondary" className="px-2 py-1 text-sm">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
-                    </button>
+                    </Link>
                   </SheetClose>
 
                   {/* Stock RAM */}
