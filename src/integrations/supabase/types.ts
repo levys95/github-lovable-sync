@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          big_bag_weight: number | null
+          brand: string | null
+          category: string
+          condition: string
+          created_at: string
+          date_added: string
+          description: string | null
+          id: string
+          images: Json
+          location: string
+          name: string
+          pallet_weight: number | null
+          quantity: number
+          shipment_number: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          big_bag_weight?: number | null
+          brand?: string | null
+          category: string
+          condition?: string
+          created_at?: string
+          date_added?: string
+          description?: string | null
+          id?: string
+          images?: Json
+          location: string
+          name: string
+          pallet_weight?: number | null
+          quantity?: number
+          shipment_number?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          big_bag_weight?: number | null
+          brand?: string | null
+          category?: string
+          condition?: string
+          created_at?: string
+          date_added?: string
+          description?: string | null
+          id?: string
+          images?: Json
+          location?: string
+          name?: string
+          pallet_weight?: number | null
+          quantity?: number
+          shipment_number?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
