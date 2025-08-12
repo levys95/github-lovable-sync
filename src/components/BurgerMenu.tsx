@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Menu, Cpu, MemoryStick, HardDrive, Package, Search as SearchIcon, Home, ChevronDown, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translateCategoryLabel } from "@/utils/category-i18n";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface BurgerMenuProps {
   categories: string[];
@@ -30,13 +31,54 @@ export function BurgerMenu({ categories, selectedCategory, counts, totalCount, o
   const [query, setQuery] = useState("");
   const [isComponentsOpen, setIsComponentsOpen] = useState(true);
 
+  // Fallback fetched data when categories/counts are not provided
+  const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
+  const [fetchedCounts, setFetchedCounts] = useState<Record<string, number>>({});
+  const [fetchedTotal, setFetchedTotal] = useState<number>(0);
+
+  const hasData = categories && categories.length > 0;
+  const effCategories = hasData ? categories : fetchedCategories;
+  const effCounts = hasData ? counts : fetchedCounts;
+  const effTotal = typeof totalCount === 'number'
+    ? totalCount
+    : (hasData ? Object.values(counts).reduce((a, b) => a + b, 0) : fetchedTotal);
+
   const labels = useMemo(() => {
-    return categories.map((c) => ({
+    return effCategories.map((c) => ({
       raw: c,
       label: translateCategoryLabel(c, language),
-      count: counts[c] || 0,
+      count: effCounts[c] || 0,
     }));
-  }, [categories, counts, language]);
+  }, [effCategories, effCounts, language]);
+
+  useEffect(() => {
+    if (hasData) return;
+    const load = async () => {
+      try {
+        const { data: itemsData } = await supabase
+          .from('inventory_items')
+          .select('category')
+          .limit(1000);
+        const { data: ramData } = await supabase
+          .from('ram_modules')
+          .select('id')
+          .limit(1000);
+        const map: Record<string, number> = {};
+        (itemsData || []).forEach((i: any) => {
+          const cat = i.category;
+          if (cat) map[cat] = (map[cat] || 0) + 1;
+        });
+        map['RAM'] = (ramData || []).length;
+        const cats = Object.keys(map).sort();
+        setFetchedCategories(cats);
+        setFetchedCounts(map);
+        setFetchedTotal(Object.values(map).reduce((a, b) => a + b, 0));
+      } catch (e) {
+        console.error('BurgerMenu load error:', e);
+      }
+    };
+    load();
+  }, [hasData]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -121,7 +163,7 @@ export function BurgerMenu({ categories, selectedCategory, counts, totalCount, o
                         <Package className="h-5 w-5" />
                         <span className="text-base font-medium">{tAll}</span>
                       </div>
-                      <Badge variant="secondary" className="px-2 py-1 text-sm">{totalCount || Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
+                      <Badge variant="secondary" className="px-2 py-1 text-sm">{effTotal}</Badge>
                     </Link>
                   </SheetClose>
 
