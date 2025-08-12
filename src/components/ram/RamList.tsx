@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ import { MANUFACTURERS, RAM_GENERATIONS, FREQUENCIES_BY_GEN, RamGeneration, RamM
 import { Trash2, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+
 type RamRow = {
   id: string;
   generation: RamGeneration;
@@ -116,10 +116,8 @@ export const RamList: React.FC = () => {
   const generatePdf = async (r: RamRow) => {
     const doc = new jsPDF();
 
-    // Logo - prefer new path, then legacy, then default
-    let logo = await fetchAsDataUrl('/lovable-uploads/logo_principal.png');
-    if (!logo) logo = await fetchAsDataUrl('/lovable-uploads/logo.png');
-    if (!logo) logo = await fetchAsDataUrl('/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png');
+    // Logo SFDE principal
+    const logo = await fetchAsDataUrl('/lovable-uploads/f66bb25b-4690-4ec2-9e18-ee73dd1da2cc.png');
     if (logo) {
       doc.addImage(logo, 'PNG', 15, 12, 28, 28);
     }
