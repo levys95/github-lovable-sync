@@ -54,7 +54,7 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-80 p-0">
+      <SheetContent side="left" className="w-[85vw] sm:w-80 p-0">
         <div className="p-4 border-b">
           <h2 className="text-xl font-semibold">{tTitle}</h2>
           <div className="mt-3 flex items-center gap-2">
@@ -70,7 +70,7 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
           </div>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-120px)] p-2">
+        <ScrollArea className="h-[calc(100dvh-120px)] sm:h-[calc(100vh-120px)] p-2">
           <div className="space-y-1">
             <SheetClose asChild>
               <button

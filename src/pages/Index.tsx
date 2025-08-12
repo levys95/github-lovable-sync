@@ -341,10 +341,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
+      <header className="sticky top-0 z-40 bg-background border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 md:h-16">
+            <div className="flex items-center gap-2 sm:gap-3">
               <BurgerMenu
                 categories={categoriesInStock}
                 selectedCategory={selectedCategory === 'all' ? null : selectedCategory}
@@ -357,15 +357,15 @@ const Index = () => {
               <img 
                 src="/lovable-uploads/f49dc73c-6cdf-40f2-8469-c10cb8d64b09.png" 
                 alt="Logo SFDE" 
-                className="h-8 w-auto"
+                className="h-7 w-auto md:h-8"
               />
-              <h1 className="text-2xl font-bold text-gray-900">{t('header.title')}</h1>
+              <h1 className="hidden sm:block text-xl md:text-2xl font-bold text-foreground">{t('header.title')}</h1>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <LanguageSelector />
-              <Button onClick={() => setIsDialogOpen(true)} className="flex items-center space-x-2">
+              <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2" aria-label={t('header.addItem')}>
                 <Plus className="h-4 w-4" />
-                <span>{t('header.addItem')}</span>
+                <span className="hidden sm:inline">{t('header.addItem')}</span>
               </Button>
             </div>
           </div>

@@ -10,9 +10,9 @@ export const LanguageSelector = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="flex items-center gap-2">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3">
           <Globe className="h-4 w-4" />
-          {language === 'lt' ? 'LT' : 'FR'}
+          <span className="hidden sm:inline">{language === 'lt' ? 'LT' : 'FR'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
