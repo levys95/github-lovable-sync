@@ -168,6 +168,56 @@ function extractIntelCoreUltra(content: string): Row[] {
   return rows;
 }
 
+// Xeon Scalable (Silver, Bronze, Gold, Max)
+function xeonScalableGenFromDigits(digits: string): number {
+  const prefix = parseInt(digits.slice(0, 2), 10);
+  if ([31,41,51,61].includes(prefix)) return 1;
+  if ([32,42,52,62].includes(prefix)) return 2;
+  if ([43,53,63].includes(prefix)) return 3;
+  if ([64,94].includes(prefix)) return 4;
+  if ([65,95].includes(prefix)) return 5;
+  return 1;
+}
+
+function extractIntelXeonScalable(content: string): Row[] {
+  const rows: Row[] = [];
+  const seen = new Set<string>();
+  let m: RegExpExecArray | null;
+
+  // Xeon Silver / Bronze / Gold
+  const reSbg = /\bXeon\s+(Silver|Bronze|Gold)\s+(\d{4,5})([A-Z0-9]{0,2})\b/gi;
+  while ((m = reSbg.exec(content)) !== null) {
+    const tier = m[1];
+    const digits = m[2];
+    const suff = (m[3] || "").toUpperCase();
+    const model = `Xeon ${tier} ${digits}${suff}`;
+    const brand: Row["brand"] = "INTEL";
+    const family = `Xeon ${tier}`;
+    const generation = `Scalable ${xeonScalableGenFromDigits(digits)}`;
+    const key = `${brand}|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand, family, generation, model, base_clock_ghz: null });
+  }
+
+  // Xeon Max
+  const reMax = /\bXeon(?:\s+CPU)?\s+Max\s+(\d{4,5})([A-Z0-9]{0,2})\b/gi;
+  while ((m = reMax.exec(content)) !== null) {
+    const digits = m[1];
+    const suff = (m[2] || "").toUpperCase();
+    const model = `Xeon Max ${digits}${suff}`;
+    const brand: Row["brand"] = "INTEL";
+    const family = "Xeon Max";
+    const generation = `Scalable ${xeonScalableGenFromDigits(digits)}`;
+    const key = `${brand}|${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ brand, family, generation, model, base_clock_ghz: null });
+  }
+
+  return rows;
+}
+
 function extractIntelOther(content: string): Row[] {
   const rows: Row[] = [];
   const seen = new Set<string>();
@@ -214,20 +264,8 @@ function extractIntelOther(content: string): Row[] {
     rows.push({ brand: "INTEL", family: "Atom", generation, model, base_clock_ghz: null });
   }
 
-  // Xeon e.g., "Xeon E-2288G", "Xeon W-1290P", "Xeon E5-2690 v4"
-  const xeonRe = /\bXeon\s+((?:E|W|D|L|Platinum|Gold|Silver|Bronze)(?:-\w+)?)\s*(\d{3,5})(?:\s*(v\d))?([A-Z0-9]{0,3})\b/gi;
-  while ((m = xeonRe.exec(content)) !== null) {
-    const series = m[1].replace(/\s+/g, " ");
-    const digits = m[2];
-    const v = (m[3] || "").toLowerCase();
-    const suff = (m[4] || "").toUpperCase();
-    const model = `Xeon ${series} ${digits}${v ? " " + v : ""}${suff}`;
-    const generation = v ? v : String(parseInt(digits[0], 10) || 0);
-    const key = `INTEL|${model}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    rows.push({ brand: "INTEL", family: "Xeon", generation, model, base_clock_ghz: null });
-  }
+  // Skipped Xeon generic families here; handled by extractIntelXeonScalable
+
 
   return rows;
 }
@@ -382,6 +420,7 @@ async function runSync(scope: "intel" | "amd" | "all") {
         intelRows.push(
           ...extractIntel(html),
           ...extractIntelCoreUltra(html),
+          ...extractIntelXeonScalable(html),
           ...extractIntelOther(html),
         );
       } catch (e) {
