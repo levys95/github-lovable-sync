@@ -140,7 +140,7 @@ export const ItemDialog = ({ isOpen, onClose, onSave, item, categories }: ItemDi
                   <SelectContent>
                     {categories.filter(cat => cat !== 'all').map(category => (
                       <SelectItem key={category} value={category}>
-                        {translateCategoryLabel(category, language)}
+                        {translateCategoryLabel(category, 'fr')}
                       </SelectItem>
                     ))}
                   </SelectContent>
