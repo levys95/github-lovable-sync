@@ -46,6 +46,7 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
   const tAll = language === "fr" ? "Tous les composants" : "Visi komponentai";
   const tTitle = language === "fr" ? "Composants" : "Komponentai";
   const tSearch = language === "fr" ? "Rechercher une catégorie…" : "Ieškoti kategorijos…";
+  const tRam = language === "fr" ? "Stock RAM" : "RAM atsargos";
 
   return (
     <Sheet>
@@ -85,6 +86,19 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
                 </div>
                 <Badge variant="secondary" className="px-3 py-1.5 text-base">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
               </button>
+            </SheetClose>
+
+            {/* Lien vers la page RAM */}
+            <SheetClose asChild>
+              <a
+                href="/ram"
+                className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
+              >
+                <div className="flex items-center gap-4">
+                  <MemoryStick className="h-6 w-6" />
+                  <span className="text-lg font-medium">{tRam}</span>
+                </div>
+              </a>
             </SheetClose>
 
             {filtered.map(({ raw, label, count }) => {

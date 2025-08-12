@@ -98,6 +98,57 @@ export type Database = {
         }
         Relationships: []
       }
+      ram_modules: {
+        Row: {
+          capacity_gb: number
+          created_at: string
+          files: Json
+          frequency_mhz: number
+          generation: Database["public"]["Enums"]["ram_generation"]
+          id: string
+          images: Json
+          location: string | null
+          manufacturer: Database["public"]["Enums"]["ram_manufacturer"]
+          notes: string | null
+          quantity: number
+          updated_at: string
+          user_id: string
+          videos: Json
+        }
+        Insert: {
+          capacity_gb: number
+          created_at?: string
+          files?: Json
+          frequency_mhz: number
+          generation: Database["public"]["Enums"]["ram_generation"]
+          id?: string
+          images?: Json
+          location?: string | null
+          manufacturer: Database["public"]["Enums"]["ram_manufacturer"]
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id: string
+          videos?: Json
+        }
+        Update: {
+          capacity_gb?: number
+          created_at?: string
+          files?: Json
+          frequency_mhz?: number
+          generation?: Database["public"]["Enums"]["ram_generation"]
+          id?: string
+          images?: Json
+          location?: string | null
+          manufacturer?: Database["public"]["Enums"]["ram_manufacturer"]
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+          videos?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -106,7 +157,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ram_generation: "DDR5" | "DDR4" | "DDR3" | "DDR3L"
+      ram_manufacturer: "SAMSUNG" | "HYNIX" | "MICRON" | "KINGSTON"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -233,6 +285,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ram_generation: ["DDR5", "DDR4", "DDR3", "DDR3L"],
+      ram_manufacturer: ["SAMSUNG", "HYNIX", "MICRON", "KINGSTON"],
+    },
   },
 } as const
