@@ -44,9 +44,15 @@ export const CpuCatalogSyncButton: React.FC = () => {
   };
 
   return (
-    <Button variant="outline" onClick={runSync} disabled={loading}>
-      <RotateCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-      {loading ? "Mise à jour..." : "Mettre à jour le catalogue CPU"}
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={runSync}
+      disabled={loading}
+      aria-label="Mettre à jour le catalogue CPU"
+      title="Mettre à jour le catalogue CPU"
+    >
+      <RotateCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
     </Button>
   );
 };
