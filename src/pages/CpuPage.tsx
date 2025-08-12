@@ -5,6 +5,7 @@ import { CpuForm } from "@/components/cpu/CpuForm";
 import { CpuList } from "@/components/cpu/CpuList";
 import { CpuOverviewPanels } from "@/components/cpu/CpuOverviewPanels";
 import { CpuCatalogSyncButton } from "@/components/cpu/CpuCatalogSyncButton";
+import { CpuCatalogCleanupButton } from "@/components/cpu/CpuCatalogCleanupButton";
 import { CpuCatalogCoverage } from "@/components/cpu/CpuCatalogCoverage";
 import { BurgerMenu } from "@/components/BurgerMenu";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -73,7 +74,10 @@ const CpuPage: React.FC = () => {
             <CpuIcon className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-semibold">Stock Processeurs</h1>
           </div>
-          <CpuCatalogSyncButton />
+          <div className="flex items-center gap-2">
+            <CpuCatalogCleanupButton />
+            <CpuCatalogSyncButton />
+          </div>
         </section>
 
         <CpuCatalogCoverage />
