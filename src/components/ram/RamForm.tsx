@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageCapture } from '@/components/ImageCapture';
-import { FileUploader } from './FileUploader';
+
 import { CAPACITIES_GB, FREQUENCIES_BY_GEN, MANUFACTURERS, RAM_GENERATIONS, RamGeneration, RamManufacturer } from './constants';
 
 type FormValues = {
@@ -31,7 +31,7 @@ export const RamForm: React.FC = () => {
   const frequencies = useMemo(() => (generation ? FREQUENCIES_BY_GEN[generation] : []), [generation]);
 
   const [media, setMedia] = useState<string[]>([]);
-  const [files, setFiles] = useState<string[]>([]);
+  
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -51,9 +51,8 @@ export const RamForm: React.FC = () => {
     onSuccess: () => {
       toast({ title: 'RAM ajoutée', description: 'Module enregistré avec succès.' });
       qc.invalidateQueries({ queryKey: ['ram_modules'] });
-      // Reset media and files
+      // Reset media
       setMedia([]);
-      setFiles([]);
     }
   });
 
@@ -68,7 +67,6 @@ export const RamForm: React.FC = () => {
       quantity: Number(values.quantity) || 0,
       images,
       videos,
-      files,
       location: values.location || null,
       notes: values.notes || null,
     };
@@ -138,9 +136,8 @@ export const RamForm: React.FC = () => {
             <Input placeholder="Notes (facultatif)" {...register('notes')} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
             <ImageCapture images={media} onImagesChange={setMedia} maxImages={10} allowVideo={true} />
-            <FileUploader files={files} onFilesChange={setFiles} />
           </div>
 
           <div className="flex justify-end">
