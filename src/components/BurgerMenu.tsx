@@ -13,6 +13,7 @@ export interface BurgerMenuProps {
   categories: string[];
   selectedCategory: string | null;
   counts: Record<string, number>;
+  totalCount?: number;
   onSelect: (category: string | "all") => void;
 }
 
@@ -24,7 +25,7 @@ const getIconForCategory = (cat: string) => {
   return Package;
 };
 
-export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: BurgerMenuProps) {
+export function BurgerMenu({ categories, selectedCategory, counts, totalCount, onSelect }: BurgerMenuProps) {
   const { language } = useLanguage();
   const [query, setQuery] = useState("");
   const [isComponentsOpen, setIsComponentsOpen] = useState(true);
@@ -120,7 +121,7 @@ export function BurgerMenu({ categories, selectedCategory, counts, onSelect }: B
                         <Package className="h-5 w-5" />
                         <span className="text-base font-medium">{tAll}</span>
                       </div>
-                      <Badge variant="secondary" className="px-2 py-1 text-sm">{Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
+                      <Badge variant="secondary" className="px-2 py-1 text-sm">{totalCount || Object.values(counts).reduce((a, b) => a + b, 0)}</Badge>
                     </Link>
                   </SheetClose>
 

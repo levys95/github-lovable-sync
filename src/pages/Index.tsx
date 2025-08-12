@@ -41,6 +41,7 @@ const Index = () => {
   
   
   const [items, setItems] = useState<InventoryItem[]>([]);
+  const [ramModules, setRamModules] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,6 +113,22 @@ const Index = () => {
     }
   };
 
+  // Load RAM modules count
+  const loadRamModules = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ram_modules')
+        .select('id')
+        .limit(1000);
+
+      if (error) throw error;
+      setRamModules(data || []);
+    } catch (error) {
+      console.error('Error loading RAM modules:', error);
+      setRamModules([]);
+    }
+  };
+
   // Update item images when they are loaded
   const handleImagesLoaded = (itemId: string, images: string[]) => {
     setItems(prevItems => 
@@ -123,7 +140,7 @@ const Index = () => {
 
   const loadData = async () => {
     setLoading(true);
-    await Promise.all([loadCategories(), loadItems()]);
+    await Promise.all([loadCategories(), loadItems(), loadRamModules()]);
     setLoading(false);
   };
 
@@ -151,15 +168,22 @@ const Index = () => {
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  // Categories present in stock (from items) and counts per category
+  // Categories present in stock (from items) and counts per category + RAM
   const categoriesInStock = useMemo(() => Array.from(new Set(items.map(i => i.category))), [items]);
   const categoryCounts = useMemo(() => {
     const map: Record<string, number> = {};
     for (const it of items) {
       map[it.category] = (map[it.category] || 0) + 1;
     }
+    // Add RAM count to total
+    map['RAM'] = ramModules.length;
     return map;
-  }, [items]);
+  }, [items, ramModules]);
+
+  // Total components count including RAM
+  const totalComponentsCount = useMemo(() => {
+    return Object.values(categoryCounts).reduce((a, b) => a + b, 0);
+  }, [categoryCounts]);
 
   // Memoized statistics calculations for performance
   const statistics = useMemo(() => {
@@ -351,6 +375,7 @@ const Index = () => {
                 categories={categoriesInStock}
                 selectedCategory={selectedCategory === 'all' ? null : selectedCategory}
                 counts={categoryCounts}
+                totalCount={totalComponentsCount}
                 onSelect={(cat) => {
                   setSelectedCategory(cat === 'all' ? 'all' : cat);
                   setCurrentPage(1);
