@@ -22,6 +22,11 @@ const translations = {
     'stats.total': 'Viso Daiktų',
     'stats.grossWeight': 'Bendras Svoris',
     'stats.netWeight': 'Grynasis',
+
+    // Units
+    'unit.kg': 'KG',
+    'unit.ppm': 'ppm',
+    'unit.percent': '%',
     
     // Search and filters
     'search.placeholder': 'Ieškoti prekių, prekių ženklų, modelių arba siuntų numerių...',
@@ -68,6 +73,33 @@ const translations = {
     'confirm.cancel': 'Atšaukti',
     'confirm.delete': 'Ištrinti',
     
+    // Pagination
+    'pagination.prev': 'Ankstesnis',
+    'pagination.next': 'Kitas',
+    'pagination.of': 'iš',
+    'pagination.items': 'prekių',
+
+    // PPM / Cards
+    'ppm.totalTitle': 'Bendras metalų turinys',
+    'ppm.totalWeightLabel': 'Bendras svoris',
+    'card.totalWeight': 'Bendras Svoris:',
+    'card.bigBag': 'Big Bag:',
+    'card.pallet': 'Paletė:',
+    'card.netWeight': 'Grynasis Svoris:',
+    'card.metalContent': 'Metalų Turinys:',
+
+    // Media / Images
+    'media.title': 'Nuotraukos ir vaizdo įrašai',
+    'media.photoBtn': 'Nuotrauka',
+    'media.videoBtn': 'Vaizdo įrašas',
+    'media.uploadBtn': 'Įkelti',
+    'media.capture': 'Fotografuoti',
+    'media.cancel': 'Atšaukti',
+    'media.none': 'Nuotraukų ar vaizdo įrašų nepridėta',
+    'media.hint.mobileNative': 'Naudokite mygtukus Nuotrauka ir Vaizdo įrašas turiniui įrašyti',
+    'media.hint.mobileWeb': 'Bakstelėkite mygtukus nuotraukoms ar vaizdo įrašams daryti',
+    'media.hint.desktop': 'Naudokite kamerą arba įkelkite failus',
+
     // Language
     'language.lithuanian': 'Lietuvių',
     'language.french': 'Prancūzų',
@@ -84,6 +116,11 @@ const translations = {
     'stats.total': 'Total Articles',
     'stats.grossWeight': 'Poids Brut',
     'stats.netWeight': 'Net',
+
+    // Units
+    'unit.kg': 'KG',
+    'unit.ppm': 'ppm',
+    'unit.percent': '%',
     
     // Search and filters
     'search.placeholder': 'Rechercher articles, marques, modèles ou numéros d\'expédition...',
@@ -130,6 +167,33 @@ const translations = {
     'confirm.cancel': 'Annuler',
     'confirm.delete': 'Supprimer',
     
+    // Pagination
+    'pagination.prev': 'Précédent',
+    'pagination.next': 'Suivant',
+    'pagination.of': 'sur',
+    'pagination.items': 'articles',
+
+    // PPM / Cards
+    'ppm.totalTitle': 'Contenu Métallique Total',
+    'ppm.totalWeightLabel': 'Poids Total',
+    'card.totalWeight': 'Poids Total:',
+    'card.bigBag': 'Big Bag:',
+    'card.pallet': 'Palette:',
+    'card.netWeight': 'Poids Net:',
+    'card.metalContent': 'Contenu Métallique:',
+
+    // Media / Images
+    'media.title': 'Photos & Vidéos',
+    'media.photoBtn': 'Photo',
+    'media.videoBtn': 'Vidéo',
+    'media.uploadBtn': 'Upload',
+    'media.capture': 'Capturer',
+    'media.cancel': 'Annuler',
+    'media.none': 'Aucune photo ou vidéo ajoutée',
+    'media.hint.mobileNative': 'Utilisez les boutons Photo et Vidéo pour capturer du contenu',
+    'media.hint.mobileWeb': 'Appuyez sur les boutons pour prendre des photos ou vidéos',
+    'media.hint.desktop': 'Utilisez la caméra ou téléchargez des fichiers',
+
     // Language
     'language.lithuanian': 'Lituanien',
     'language.french': 'Français',

@@ -10,6 +10,7 @@ import { PPMDisplay } from '@/components/PPMDisplay';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { calculateTotalPPM } from '@/utils/ppmCalculations';
+import { translateCategoryLabel } from '@/utils/category-i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,7 +31,7 @@ interface InventoryItem {
 }
 
 const Index = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   // CardTitle import fix - force rebuild
   
@@ -354,9 +355,9 @@ const Index = () => {
                 <CardTitle className="text-lg font-bold text-green-800">{t('stats.ready')}</CardTitle>
               </div>
                <div className="bg-white rounded-lg p-4 shadow-sm">
-                 <div className="text-3xl font-bold text-green-900 mb-1">{statistics.readyWeight.toFixed(1)} KG</div>
+                 <div className="text-3xl font-bold text-green-900 mb-1">{statistics.readyWeight.toFixed(1)} {t('unit.kg')}</div>
                  <p className="text-sm text-green-600 font-medium">{t('stats.grossWeight')}</p>
-                 <p className="text-xs text-green-500">{t('stats.netWeight')}: {statistics.readyNetWeight.toFixed(1)} kg</p>
+                 <p className="text-xs text-green-500">{t('stats.netWeight')}: {statistics.readyNetWeight.toFixed(1)} {t('unit.kg')}</p>
                </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -364,25 +365,25 @@ const Index = () => {
                  <div className="bg-gray-50 rounded-lg p-3 text-center border">
                    <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.readyPPM.Ag)}</div>
                    <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                   <div className="text-xs text-gray-500">ppm</div>
+                   <div className="text-xs text-gray-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                    <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.readyPPM.Pd)}</div>
                    <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                   <div className="text-xs text-blue-500">ppm</div>
+                   <div className="text-xs text-blue-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
                    <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.readyPPM.Au)}</div>
                    <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                   <div className="text-xs text-yellow-500">ppm</div>
+                   <div className="text-xs text-yellow-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                    <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.readyPPM.Cu)}%</div>
                    <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                   <div className="text-xs text-orange-500">pourcent</div>
+                   <div className="text-xs text-orange-500">{t('unit.percent')}</div>
                  </div>
               </div>
             </CardContent>
@@ -396,9 +397,9 @@ const Index = () => {
                 <CardTitle className="text-lg font-bold text-yellow-800">{t('stats.waiting')}</CardTitle>
               </div>
                <div className="bg-white rounded-lg p-4 shadow-sm">
-                 <div className="text-3xl font-bold text-yellow-900 mb-1">{statistics.waitingSortingWeight.toFixed(1)} KG</div>
+                 <div className="text-3xl font-bold text-yellow-900 mb-1">{statistics.waitingSortingWeight.toFixed(1)} {t('unit.kg')}</div>
                  <p className="text-sm text-yellow-600 font-medium">{t('stats.grossWeight')}</p>
-                 <p className="text-xs text-yellow-500">{t('stats.netWeight')}: {statistics.waitingSortingNetWeight.toFixed(1)} kg</p>
+                 <p className="text-xs text-yellow-500">{t('stats.netWeight')}: {statistics.waitingSortingNetWeight.toFixed(1)} {t('unit.kg')}</p>
                </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -406,25 +407,25 @@ const Index = () => {
                  <div className="bg-gray-50 rounded-lg p-3 text-center border">
                    <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Ag)}</div>
                    <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                   <div className="text-xs text-gray-500">ppm</div>
+                    <div className="text-xs text-gray-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                    <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Pd)}</div>
                    <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                   <div className="text-xs text-blue-500">ppm</div>
+                    <div className="text-xs text-blue-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
                    <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Au)}</div>
                    <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                   <div className="text-xs text-yellow-500">ppm</div>
+                    <div className="text-xs text-yellow-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                    <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.waitingSortingPPM.Cu)}%</div>
                    <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                   <div className="text-xs text-orange-500">pourcent</div>
+                    <div className="text-xs text-orange-500">{t('unit.percent')}</div>
                  </div>
               </div>
             </CardContent>
@@ -438,9 +439,9 @@ const Index = () => {
                 <CardTitle className="text-lg font-bold text-gray-800">{t('stats.unknown')}</CardTitle>
               </div>
                <div className="bg-white rounded-lg p-4 shadow-sm">
-                 <div className="text-3xl font-bold text-gray-900 mb-1">{statistics.unknownWeight.toFixed(1)} KG</div>
+                 <div className="text-3xl font-bold text-gray-900 mb-1">{statistics.unknownWeight.toFixed(1)} {t('unit.kg')}</div>
                  <p className="text-sm text-gray-600 font-medium">{t('stats.grossWeight')}</p>
-                 <p className="text-xs text-gray-500">{t('stats.netWeight')}: {statistics.unknownNetWeight.toFixed(1)} kg</p>
+                 <p className="text-xs text-gray-500">{t('stats.netWeight')}: {statistics.unknownNetWeight.toFixed(1)} {t('unit.kg')}</p>
                </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -448,25 +449,25 @@ const Index = () => {
                  <div className="bg-gray-50 rounded-lg p-3 text-center border">
                    <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.unknownPPM.Ag)}</div>
                    <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                   <div className="text-xs text-gray-500">ppm</div>
+                    <div className="text-xs text-gray-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                    <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.unknownPPM.Pd)}</div>
                    <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                   <div className="text-xs text-blue-500">ppm</div>
+                    <div className="text-xs text-blue-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
                    <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.unknownPPM.Au)}</div>
                    <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                   <div className="text-xs text-yellow-500">ppm</div>
+                    <div className="text-xs text-yellow-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                    <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.unknownPPM.Cu)}%</div>
                    <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                   <div className="text-xs text-orange-500">pourcent</div>
+                    <div className="text-xs text-orange-500">{t('unit.percent')}</div>
                  </div>
               </div>
             </CardContent>
@@ -480,9 +481,9 @@ const Index = () => {
                 <CardTitle className="text-lg font-bold text-purple-800">{t('stats.total')}</CardTitle>
               </div>
                <div className="bg-white rounded-lg p-4 shadow-sm">
-                 <div className="text-3xl font-bold text-purple-900 mb-1">{statistics.totalWeight.toFixed(1)} KG</div>
+                 <div className="text-3xl font-bold text-purple-900 mb-1">{statistics.totalWeight.toFixed(1)} {t('unit.kg')}</div>
                  <p className="text-sm text-purple-600 font-medium">{t('stats.grossWeight')}</p>
-                 <p className="text-xs text-purple-500">{t('stats.netWeight')}: {statistics.totalNetWeight.toFixed(1)} kg</p>
+                 <p className="text-xs text-purple-500">{t('stats.netWeight')}: {statistics.totalNetWeight.toFixed(1)} {t('unit.kg')}</p>
                </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -490,25 +491,25 @@ const Index = () => {
                  <div className="bg-gray-50 rounded-lg p-3 text-center border">
                    <div className="text-2xl font-bold text-gray-800 mb-1">{Math.round(ppmData.totalPPM.Ag)}</div>
                    <div className="text-xs font-medium text-gray-600 mb-1">Ag:</div>
-                   <div className="text-xs text-gray-500">ppm</div>
+                   <div className="text-xs text-gray-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                    <div className="text-2xl font-bold text-blue-800 mb-1">{Math.round(ppmData.totalPPM.Pd)}</div>
                    <div className="text-xs font-medium text-blue-600 mb-1">Pd:</div>
-                   <div className="text-xs text-blue-500">ppm</div>
+                   <div className="text-xs text-blue-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
                    <div className="text-2xl font-bold text-yellow-800 mb-1">{Math.round(ppmData.totalPPM.Au)}</div>
                    <div className="text-xs font-medium text-yellow-600 mb-1">Au:</div>
-                   <div className="text-xs text-yellow-500">ppm</div>
+                   <div className="text-xs text-yellow-500">{t('unit.ppm')}</div>
                  </div>
                  
                  <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-200">
                    <div className="text-2xl font-bold text-orange-800 mb-1">{Math.round(ppmData.totalPPM.Cu)}%</div>
                    <div className="text-xs font-medium text-orange-600 mb-1">Cu:</div>
-                   <div className="text-xs text-orange-500">pourcent</div>
+                   <div className="text-xs text-orange-500">{t('unit.percent')}</div>
                  </div>
               </div>
             </CardContent>
@@ -534,7 +535,7 @@ const Index = () => {
             <option value="all">{t('filter.allCategories')}</option>
             {categories.filter(cat => cat !== 'all').map(category => (
               <option key={category} value={category}>
-                {category}
+                {translateCategoryLabel(category, language)}
               </option>
             ))}
           </select>
@@ -582,17 +583,17 @@ const Index = () => {
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                 >
-                  Ankstesnis
+                  {t('pagination.prev')}
                 </Button>
                 <span className="text-sm text-gray-600">
-                  {currentPage} iš {totalPages} ({filteredItems.length} prekių)
+                  {currentPage} {t('pagination.of')} {totalPages} ({filteredItems.length} {t('pagination.items')})
                 </span>
                 <Button
                   variant="outline"
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
                 >
-                  Kitas
+                  {t('pagination.next')}
                 </Button>
               </div>
             )}

@@ -1,10 +1,13 @@
 
+import { resolveCategoryKey, getCategoryLabel } from './category-i18n';
+
 export interface MetalContent {
   Ag: number; // Silver
   Au: number; // Gold
   Pd: number; // Palladium
   Cu: number; // Copper
 }
+
 
 export const categoryMetalData: Record<string, MetalContent> = {
   'Smartphones': { Ag: 750, Au: 130, Pd: 11, Cu: 8 },
@@ -25,5 +28,15 @@ export const categoryMetalData: Record<string, MetalContent> = {
 };
 
 export const getMetalContent = (category: string): MetalContent | null => {
-  return categoryMetalData[category] || null;
+  // Try direct match first (DB label may already be FR key)
+  if (categoryMetalData[category]) return categoryMetalData[category];
+
+  // Resolve from localized label to canonical key, then back to FR label used in data map
+  const key = resolveCategoryKey(category);
+  if (key) {
+    const frLabel = getCategoryLabel(key, 'fr');
+    if (categoryMetalData[frLabel]) return categoryMetalData[frLabel];
+  }
+
+  return null;
 };

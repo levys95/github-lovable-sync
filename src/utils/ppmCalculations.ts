@@ -11,8 +11,11 @@ export interface PPMTotals {
 export const calculateTotalPPM = (items: Array<{
   category: string;
   quantity: number;
+  // Accept both camelCase and snake_case for weights
   bigBagWeight?: number;
   palletWeight?: number;
+  big_bag_weight?: number;
+  pallet_weight?: number;
 }>): PPMTotals => {
   let totalNetWeight = 0;
   let totalAg = 0;
@@ -23,8 +26,7 @@ export const calculateTotalPPM = (items: Array<{
   items.forEach(item => {
     const metalContent = getMetalContent(item.category);
     if (metalContent) {
-      // Calculate net weight (excluding tare weights)
-      const netWeight = item.quantity - (item.bigBagWeight || 0) - (item.palletWeight || 0);
+      const netWeight = item.quantity - ((item.bigBagWeight ?? (item as any).big_bag_weight) || 0) - ((item.palletWeight ?? (item as any).pallet_weight) || 0);
       
       // Add to total net weight
       totalNetWeight += netWeight;
