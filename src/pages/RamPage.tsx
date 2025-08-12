@@ -3,10 +3,12 @@ import React, { useEffect } from 'react';
 import { RamForm } from '@/components/ram/RamForm';
 import { RamList } from '@/components/ram/RamList';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { BurgerMenu } from '@/components/BurgerMenu';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { RamOverviewPanels } from '@/components/ram/RamOverviewPanels';
 import { Logo } from '@/components/Logo';
+import { FileText } from 'lucide-react';
 
 const RamPage: React.FC = () => {
   useEffect(() => {
@@ -54,7 +56,18 @@ const RamPage: React.FC = () => {
             <RamForm />
             <Card>
               <CardContent className="p-4 md:p-6 space-y-4">
-                <h2 className="text-lg font-semibold">Inventaire</h2>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">Inventaire</h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.dispatchEvent(new CustomEvent('generate-full-ram-pdf'))}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="h-4 w-4" />
+                    PDF Complet
+                  </Button>
+                </div>
                 <RamList />
               </CardContent>
             </Card>

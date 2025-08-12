@@ -61,6 +61,20 @@ export const RamList: React.FC = () => {
       return true;
     });
   }, [rows, gen, man, freq, search]);
+  
+  // Event listener for full PDF generation
+  React.useEffect(() => {
+    const handleFullPdfGeneration = () => {
+      if (rows && rows.length > 0) {
+        generateFullPdf(rows);
+      } else {
+        toast({ title: "Aucune donnée", description: "Aucun module RAM trouvé pour générer le PDF." });
+      }
+    };
+    
+    window.addEventListener('generate-full-ram-pdf', handleFullPdfGeneration);
+    return () => window.removeEventListener('generate-full-ram-pdf', handleFullPdfGeneration);
+  }, [rows, toast]);
 
   const del = useMutation({
     mutationKey: ['ram_modules', 'delete'],
@@ -152,6 +166,80 @@ export const RamList: React.FC = () => {
 
     const filename = `RAM_${r.generation}_${r.capacity_gb}Go_${r.frequency_mhz}MHz_${r.manufacturer}.pdf`;
     doc.save(filename);
+  };
+
+  const generateFullPdf = async (ramData: RamRow[]) => {
+    const doc = new jsPDF();
+
+    // Logo SFDE principal
+    const logo = await fetchAsDataUrl('/lovable-uploads/f66bb25b-4690-4ec2-9e18-ee73dd1da2cc.png');
+    if (logo) {
+      doc.addImage(logo, 'PNG', 15, 12, 28, 28);
+    }
+
+    // Title
+    doc.setFontSize(16);
+    doc.text('Inventaire Complet - Modules RAM', 50, 20);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleString()}`, 50, 27);
+    doc.text(`Total: ${ramData.length} modules`, 50, 32);
+
+    // Summary statistics
+    const totalQuantity = ramData.reduce((sum, r) => sum + r.quantity, 0);
+    const byGeneration = ramData.reduce((acc, r) => {
+      acc[r.generation] = (acc[r.generation] || 0) + r.quantity;
+      return acc;
+    }, {} as Record<string, number>);
+
+    doc.text(`Quantité totale: ${totalQuantity} modules`, 50, 37);
+    
+    let y = 45;
+    // Summary table
+    const summaryData = Object.entries(byGeneration).map(([gen, qty]) => [gen, `${qty} modules`]);
+    
+    autoTable(doc, {
+      startY: y,
+      head: [['Génération', 'Quantité']],
+      body: summaryData,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [23, 37, 84], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+      margin: { left: 15, right: 15 },
+    });
+
+    // Get the final Y position after the summary table
+    y = (doc as any).lastAutoTable.finalY + 10;
+
+    // Main inventory table
+    const tableData = ramData.map(r => [
+      r.generation,
+      `${r.capacity_gb} Go`,
+      `${r.frequency_mhz} MHz`,
+      r.manufacturer,
+      String(r.quantity),
+      r.location || '-',
+      new Date(r.created_at).toLocaleDateString()
+    ]);
+
+    autoTable(doc, {
+      startY: y,
+      head: [['Génération', 'Capacité', 'Fréquence', 'Fabricant', 'Qté', 'Localisation', 'Ajouté le']],
+      body: tableData,
+      theme: 'striped',
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [23, 37, 84], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+      margin: { left: 15, right: 15 },
+    });
+
+    const filename = `Inventaire_RAM_Complet_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+    
+    toast({ 
+      title: "PDF généré", 
+      description: `Inventaire complet de ${ramData.length} modules RAM téléchargé.` 
+    });
   };
 
   const availableFreqs = gen === 'all' ? [] : FREQUENCIES_BY_GEN[gen];
