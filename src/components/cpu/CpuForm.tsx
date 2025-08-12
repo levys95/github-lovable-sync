@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Cpu } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
 type CpuBrand = "INTEL" | "AMD";
 
@@ -116,23 +117,21 @@ export const CpuForm: React.FC = () => {
         throw new Error("Vous devez être connecté pour ajouter un processeur.");
       }
 
-      // Build payload with required user_id
-      const payload: Record<string, any> = {
+      // Strongly type the insert payload to match Supabase types
+      type CpuInventoryInsert = Database["public"]["Tables"]["cpu_inventory"]["Insert"];
+
+      const payload: CpuInventoryInsert = {
         user_id: user.id,
         catalog_id: selectedModel.id,
         brand,
         family,
         generation,
         model: selectedModel.model,
+        base_clock_ghz: selectedModel.base_clock_ghz ?? null,
         quantity,
         location: location || null,
         notes: notes || null,
       };
-
-      // Only include base_clock_ghz if present to match generated types
-      if (selectedModel.base_clock_ghz !== null && selectedModel.base_clock_ghz !== undefined) {
-        payload.base_clock_ghz = selectedModel.base_clock_ghz;
-      }
 
       const { error } = await supabase.from("cpu_inventory").insert(payload);
       if (error) throw error;
