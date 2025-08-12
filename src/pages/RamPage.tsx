@@ -42,6 +42,20 @@ const RamPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <LanguageSelector />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={async () => {
+                  const { supabase } = await import('@/integrations/supabase/client');
+                  await supabase.auth.signOut();
+                  window.location.href = '/login';
+                }}
+                className="flex items-center gap-2"
+                aria-label="Se déconnecter"
+              >
+                <span className="hidden sm:inline">Déconnexion</span>
+                <span className="sm:hidden">⏻</span>
+              </Button>
             </div>
           </div>
         </div>

@@ -367,6 +367,19 @@ const Index = () => {
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('header.addItem')}</span>
               </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = '/login';
+                }}
+                className="flex items-center gap-2"
+                aria-label="Se déconnecter"
+              >
+                <span className="hidden sm:inline">Déconnexion</span>
+                <span className="sm:hidden">⏻</span>
+              </Button>
             </div>
           </div>
         </div>
