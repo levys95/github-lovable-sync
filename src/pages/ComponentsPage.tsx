@@ -75,7 +75,7 @@ const ComponentsPage: React.FC = () => {
       description: 'CPU Intel, AMD - Socket LGA, AM4, AM5',
       descriptionLt: 'CPU Intel, AMD - Socket LGA, AM4, AM5',
       icon: Cpu,
-      route: '/processors',
+      route: '/processeurs',
       color: 'text-green-600',
       bgGradient: 'from-green-50 to-emerald-100 border-green-200'
     },
