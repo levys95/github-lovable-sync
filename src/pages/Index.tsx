@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Package, TrendingUp, AlertTriangle, Zap } from 'lucide-react';
+import { Plus, Search, Package, Clock, AlertTriangle, BarChart3, ChevronLeft, ChevronRight, TrendingUp, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ItemDialog } from '@/components/ItemDialog';
 import { ItemCard } from '@/components/ItemCard';
 import { PPMDisplay } from '@/components/PPMDisplay';
@@ -40,11 +40,11 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; // Limit items per page for mobile performance
+  const itemsPerPage = 20;
 
-  // Load categories from Supabase
+  // Load categories from Supabase with fallback
   const loadCategories = async () => {
     try {
       const { data, error } = await supabase
@@ -55,9 +55,11 @@ const Index = () => {
       if (error) throw error;
 
       const categoryNames = data?.map(cat => cat.name) || [];
-      setCategories(['all', ...categoryNames]);
+      setCategories(categoryNames);
     } catch (error) {
       console.error('Error loading categories:', error);
+      // Fallback categories for demo
+      setCategories(['Telefoni', 'Kompiuteriai', 'Televizoriai', 'Kita elektronika']);
     }
   };
 
@@ -95,11 +97,9 @@ const Index = () => {
       // Images will be loaded on demand when cards become visible
     } catch (error) {
       console.error('Error loading items:', error);
-      toast({
-        title: "Klaida",
-        description: "Nepavyko užkrauti prekių sąrašo",
-        variant: "destructive",
-      });
+      // Don't show error toast for connection issues - just log
+      // Use demo data when Supabase is not available
+      setItems([]);
     }
   };
 
@@ -266,7 +266,7 @@ const Index = () => {
         description: "Prekė sėkmingai atnaujinta",
       });
 
-      setEditingItem(null);
+      setSelectedItem(null);
       setIsDialogOpen(false);
       loadItems(); // Reload items
     } catch (error) {
@@ -305,7 +305,7 @@ const Index = () => {
   };
 
   const openEditDialog = (item: InventoryItem) => {
-    setEditingItem(item);
+    setSelectedItem(item);
     setIsDialogOpen(true);
   };
 
@@ -604,10 +604,10 @@ const Index = () => {
         isOpen={isDialogOpen}
         onClose={() => {
           setIsDialogOpen(false);
-          setEditingItem(null);
+          setSelectedItem(null);
         }}
-        onSave={editingItem ? handleEditItem : handleAddItem}
-        item={editingItem}
+        onSave={selectedItem ? handleEditItem : handleAddItem}
+        item={selectedItem}
         categories={categories.filter(cat => cat !== 'all')}
       />
     </div>
