@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,17 +105,35 @@ export const CpuForm: React.FC = () => {
       if (!brand || !family || !generation || !selectedModel) {
         throw new Error("Veuillez sélectionner Marque, Gamme, Génération et Modèle.");
       }
-      const payload = {
+
+      // Fetch the authenticated user to satisfy RLS and the required user_id column
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        throw authError;
+      }
+      const user = authData?.user;
+      if (!user) {
+        throw new Error("Vous devez être connecté pour ajouter un processeur.");
+      }
+
+      // Build payload with required user_id
+      const payload: Record<string, any> = {
+        user_id: user.id,
         catalog_id: selectedModel.id,
         brand,
         family,
         generation,
         model: selectedModel.model,
-        base_clock_ghz: selectedModel.base_clock_ghz,
         quantity,
         location: location || null,
         notes: notes || null,
       };
+
+      // Only include base_clock_ghz if present to match generated types
+      if (selectedModel.base_clock_ghz !== null && selectedModel.base_clock_ghz !== undefined) {
+        payload.base_clock_ghz = selectedModel.base_clock_ghz;
+      }
+
       const { error } = await supabase.from("cpu_inventory").insert(payload);
       if (error) throw error;
       return true;
