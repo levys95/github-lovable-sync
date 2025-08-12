@@ -8,7 +8,7 @@ import { BurgerMenu } from '@/components/BurgerMenu';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { RamOverviewPanels } from '@/components/ram/RamOverviewPanels';
 import { Logo } from '@/components/Logo';
-import { FileText } from 'lucide-react';
+import { FileText, LogOut } from 'lucide-react';
 
 const RamPage: React.FC = () => {
   useEffect(() => {
@@ -54,7 +54,7 @@ const RamPage: React.FC = () => {
                 aria-label="Se déconnecter"
               >
                 <span className="hidden sm:inline">Déconnexion</span>
-                <span className="sm:hidden">⏻</span>
+                <LogOut className="h-4 w-4 sm:hidden" />
               </Button>
             </div>
           </div>

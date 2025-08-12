@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Package, Clock, AlertTriangle, BarChart3, ChevronLeft, ChevronRight, TrendingUp, Zap } from 'lucide-react';
+import { Plus, Search, Package, Clock, AlertTriangle, BarChart3, ChevronLeft, ChevronRight, TrendingUp, Zap, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -378,7 +378,7 @@ const Index = () => {
                 aria-label="Se déconnecter"
               >
                 <span className="hidden sm:inline">Déconnexion</span>
-                <span className="sm:hidden">⏻</span>
+                <LogOut className="h-4 w-4 sm:hidden" />
               </Button>
             </div>
           </div>
