@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translateCategoryLabel } from "@/utils/category-i18n";
+import { componentCategories } from "@/constants/componentsCatalog";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface BurgerMenuProps {
@@ -18,80 +18,85 @@ export interface BurgerMenuProps {
   onSelect: (category: string | "all") => void;
 }
 
-const getIconForCategory = (cat: string) => {
-  const c = cat.toLowerCase();
-  if (c.includes("cpu") || c.includes("processeur") || c.includes("processeur") || c.includes("processor")) return Cpu;
-  if (c.includes("ram") || c.includes("mémoire") || c.includes("memoire") || c.includes("memory")) return MemoryStick;
-  if (c.includes("disque") || c.includes("hdd") || c.includes("ssd") || c.includes("hard")) return HardDrive;
-  return Package;
-};
+// Category icons now come from componentCategories
 
 export function BurgerMenu({ categories, selectedCategory, counts, totalCount, onSelect }: BurgerMenuProps) {
   const { language } = useLanguage();
   const [query, setQuery] = useState("");
   const [isComponentsOpen, setIsComponentsOpen] = useState(true);
 
-  // Fallback fetched data when categories/counts are not provided
-  const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
-  const [fetchedCounts, setFetchedCounts] = useState<Record<string, number>>({});
-  const [fetchedTotal, setFetchedTotal] = useState<number>(0);
-
-  const hasData = categories && categories.length > 0;
-  const effCategories = hasData ? categories : fetchedCategories;
-  const effCounts = hasData ? counts : fetchedCounts;
-  const effTotal = typeof totalCount === 'number'
-    ? totalCount
-    : (hasData ? Object.values(counts).reduce((a, b) => a + b, 0) : fetchedTotal);
-
-  const labels = useMemo(() => {
-    return effCategories.map((c) => ({
-      raw: c,
-      label: translateCategoryLabel(c, language),
-      count: effCounts[c] || 0,
-    }));
-  }, [effCategories, effCounts, language]);
+// Stock counts per component id
+  const [countsMap, setCountsMap] = useState<Record<string, number>>({});
+  const [totalComponents, setTotalComponents] = useState<number>(0);
 
   useEffect(() => {
-    if (hasData) return;
-    const load = async () => {
+    const normalize = (s: string) =>
+      s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+
+    const mapLabelToId: Record<string, string> = {};
+    componentCategories.forEach((cat) => {
+      if (cat.id === 'ram' || cat.id === 'processors') return;
+      mapLabelToId[normalize(cat.name)] = cat.id;
+      mapLabelToId[normalize(cat.nameLt)] = cat.id;
+    });
+
+    const loadCounts = async () => {
       try {
-        const { data: itemsData } = await supabase
-          .from('inventory_items')
-          .select('category')
-          .limit(1000);
-        const { data: ramData } = await supabase
-          .from('ram_modules')
-          .select('id')
-          .limit(1000);
-        const map: Record<string, number> = {};
-        (itemsData || []).forEach((i: any) => {
-          const cat = i.category;
-          if (cat) map[cat] = (map[cat] || 0) + 1;
+        const [ramRes, cpuRes, itemsRes] = await Promise.all([
+          supabase.from('ram_modules').select('quantity').limit(10000),
+          supabase.from('cpu_inventory').select('quantity').limit(10000),
+          supabase.from('inventory_items').select('category, quantity').limit(10000),
+        ]);
+
+        const counts: Record<string, number> = {};
+
+        // RAM
+        const ramSum = (ramRes.data || []).reduce((acc: number, r: any) => acc + (Number(r.quantity) || 0), 0);
+        counts['ram'] = ramSum;
+
+        // Processors
+        const cpuSum = (cpuRes.data || []).reduce((acc: number, r: any) => acc + (Number(r.quantity) || 0), 0);
+        counts['processors'] = cpuSum;
+
+        // Other components from inventory_items
+        (itemsRes.data || []).forEach((row: any) => {
+          const id = row.category ? mapLabelToId[normalize(row.category)] : undefined;
+          if (!id) return;
+          const qty = Number(row.quantity) || 0;
+          counts[id] = (counts[id] || 0) + qty;
         });
-        map['RAM'] = (ramData || []).length;
-        const cats = Object.keys(map).sort();
-        setFetchedCategories(cats);
-        setFetchedCounts(map);
-        setFetchedTotal(Object.values(map).reduce((a, b) => a + b, 0));
+
+        // Ensure all categories exist in the map
+        componentCategories.forEach((cat) => {
+          counts[cat.id] = counts[cat.id] || 0;
+        });
+
+        setCountsMap(counts);
+        setTotalComponents(Object.values(counts).reduce((a, b) => a + b, 0));
       } catch (e) {
-        console.error('BurgerMenu load error:', e);
+        console.error('BurgerMenu count load error:', e);
       }
     };
-    load();
-  }, [hasData]);
+
+    loadCounts();
+  }, [language]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = q
-      ? labels.filter((l) => l.label.toLowerCase().includes(q))
-      : labels;
-    return list.sort((a, b) => a.label.localeCompare(b.label));
-  }, [labels, query]);
+    const list = componentCategories.map((cat) => ({
+      id: cat.id,
+      label: language === 'fr' ? cat.name : cat.nameLt,
+      route: cat.route,
+      Icon: cat.icon,
+      count: countsMap[cat.id] || 0,
+    }));
+    const filteredList = q ? list.filter((l) => l.label.toLowerCase().includes(q)) : list;
+    return filteredList;
+  }, [query, language, countsMap]);
 
   const tAll = language === "fr" ? "Tous les composants" : "Visi komponentai";
   const tTitle = language === "fr" ? "Navigation" : "Navigacija";
   const tSearch = language === "fr" ? "Rechercher une catégorie…" : "Ieškoti kategorijos…";
-  const tRam = language === "fr" ? "Stock RAM" : "RAM atsargos";
   const tOverview = language === "fr" ? "Vue d'ensemble" : "Apžvalga";
   const tComponents = language === "fr" ? "Composants" : "Komponentai";
 
@@ -163,44 +168,26 @@ export function BurgerMenu({ categories, selectedCategory, counts, totalCount, o
                         <Package className="h-5 w-5" />
                         <span className="text-base font-medium">{tAll}</span>
                       </div>
-                      <Badge variant="secondary" className="px-2 py-1 text-sm">{effTotal}</Badge>
+                      <Badge variant="secondary" className="px-2 py-1 text-sm">{totalComponents}</Badge>
                     </Link>
                   </SheetClose>
 
-                  {/* Stock RAM */}
-                  <SheetClose asChild>
-                    <Link
-                      to="/ram"
-                      className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
-                    >
-                      <div className="flex items-center gap-4">
-                        <MemoryStick className="h-5 w-5" />
-                        <span className="text-base font-medium">{tRam}</span>
-                      </div>
-                    </Link>
-                  </SheetClose>
 
-                  {/* Autres catégories */}
-                  {filtered.map(({ raw, label, count }) => {
-                    const Icon = getIconForCategory(raw);
-                    const active = selectedCategory === raw;
-                    return (
-                      <SheetClose asChild key={raw}>
-                        <button
-                          type="button"
-                          onClick={() => onSelect(raw)}
-                          data-active={active}
-                          className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted data-[active=true]:bg-muted"
-                        >
-                          <div className="flex items-center gap-4">
-                            <Icon className="h-5 w-5" />
-                            <span className="text-base font-medium">{label}</span>
-                          </div>
-                          {count > 0 && <Badge variant="outline" className="px-2 py-1 text-sm">{count}</Badge>}
-                        </button>
-                      </SheetClose>
-                    );
-                  })}
+                  {/* Liste des composants */}
+                  {filtered.map(({ id, label, route, Icon, count }) => (
+                    <SheetClose asChild key={id}>
+                      <Link
+                        to={route}
+                        className="w-full flex items-center justify-between rounded-xl px-5 py-4 hover:bg-muted"
+                      >
+                        <div className="flex items-center gap-4">
+                          <Icon className="h-5 w-5" />
+                          <span className="text-base font-medium">{label}</span>
+                        </div>
+                        <Badge variant="outline" className="px-2 py-1 text-sm">{count}</Badge>
+                      </Link>
+                    </SheetClose>
+                  ))}
                 </div>
               )}
             </div>
