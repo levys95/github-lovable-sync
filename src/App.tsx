@@ -12,8 +12,6 @@ import AuthPage from "./pages/AuthPage";
 import RamPage from "./pages/RamPage";
 import ComponentsPage from "./pages/ComponentsPage";
 import CpuPage from "./pages/CpuPage";
-import StockMaterielsPage from "./pages/StockMaterielsPage";
-import PiecesDetacheesPage from "./pages/PiecesDetacheesPage";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +26,7 @@ const App = () => (
             <Route path="/login" element={<AuthPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Index />} />
-              <Route path="/stock-materiels" element={<StockMaterielsPage />} />
               <Route path="/components" element={<ComponentsPage />} />
-              <Route path="/pieces-detachees" element={<PiecesDetacheesPage />} />
               <Route path="/ram" element={<RamPage />} />
               <Route path="/processeurs" element={<CpuPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
