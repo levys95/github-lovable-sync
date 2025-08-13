@@ -2,34 +2,35 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowRight, LogOut } from "lucide-react";
 import { BurgerMenu } from "@/components/BurgerMenu";
 import { Logo } from "@/components/Logo";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { mainSections } from "@/constants/mainSections";
+import { pieceDetacheeCategories } from "@/constants/piecesDetacheesCatalog";
 
-const Index: React.FC = () => {
+const PiecesDetacheesPage: React.FC = () => {
   const { language } = useLanguage();
 
   useEffect(() => {
     if (language === 'lt') {
-      document.title = "Inventoriaus sistema - Pagrindinis";
+      document.title = "Atsarginės dalys - Inventorius";
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
-        metaDescription.setAttribute('content', 'Valdykite visą savo IT inventorių - įranga, komponentai, atsarginės dalys');
+        metaDescription.setAttribute('content', 'Valdykite atsargines dalis Dell, HP, Lenovo įrangai - baterijos, ekranai, klaviatūros');
       }
     } else {
-      document.title = "Système d'Inventaire - Accueil";
+      document.title = "Pièces Détachées - Inventaire";
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
-        metaDescription.setAttribute('content', 'Gérez tout votre inventaire IT - matériel, composants, pièces détachées');
+        metaDescription.setAttribute('content', 'Gérez vos pièces détachées Dell, HP, Lenovo - batteries, écrans, claviers, cartes mères');
       }
     }
 
     const canonicalLink = document.querySelector('link[rel="canonical"]');
     if (canonicalLink) {
-      canonicalLink.setAttribute('href', window.location.origin + '/');
+      canonicalLink.setAttribute('href', window.location.origin + '/pieces-detachees');
     }
   }, [language]);
 
@@ -53,7 +54,7 @@ const Index: React.FC = () => {
               onSelect={() => {}}
             />
             <h1 className="font-semibold text-foreground">
-              {language === 'lt' ? 'Inventoriaus Sistema' : 'Système d\'Inventaire'}
+              {language === 'lt' ? 'Atsarginės Dalys' : 'Pièces Détachées'}
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -70,37 +71,49 @@ const Index: React.FC = () => {
       <main className="container mx-auto p-6">
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold tracking-tight mb-4">
-            {language === 'lt' ? 'Inventoriaus Sistema' : 'Système d\'Inventaire'}
+            {language === 'lt' ? 'Atsarginės Dalys' : 'Pièces Détachées'}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {language === 'lt' 
-              ? 'Valdykite visą savo IT inventorių - įrangą, komponentus ir atsargines dalis vienoje sistemoje.'
-              : 'Gérez tout votre inventaire IT - matériel, composants et pièces détachées dans un système unifié.'
+              ? 'Valdykite atsargines dalis Dell, HP ir Lenovo įrangai - baterijos, ekranai, klaviatūros ir daugiau'
+              : 'Gérez vos pièces détachées pour équipements Dell, HP et Lenovo - batteries, écrans, claviers et plus'
             }
           </p>
+          <div className="flex justify-center gap-2 mt-4">
+            <Badge variant="outline">Dell</Badge>
+            <Badge variant="outline">HP</Badge>
+            <Badge variant="outline">Lenovo</Badge>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mainSections.map((section) => {
-            const IconComponent = section.icon;
+          {pieceDetacheeCategories.map((category) => {
+            const IconComponent = category.icon;
             return (
-              <Link key={section.id} to={section.route}>
-                <Card className={`h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 bg-gradient-to-br ${section.bgGradient}`}>
+              <Link key={category.id} to={category.route}>
+                <Card className={`h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 bg-gradient-to-br ${category.bgGradient}`}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`p-3 rounded-lg bg-white/50 ${section.color}`}>
+                      <div className={`p-3 rounded-lg bg-white/50 ${category.color}`}>
                         <IconComponent className="h-6 w-6" />
                       </div>
                       <ArrowRight className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <h3 className="font-semibold text-lg mb-2">
-                      {language === 'lt' ? section.nameLt : section.name}
+                      {language === 'lt' ? category.nameLt : category.name}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {language === 'lt' ? section.descriptionLt : section.description}
+                      {language === 'lt' ? category.descriptionLt : category.description}
                     </p>
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {category.brands.map((brand) => (
+                        <Badge key={brand} variant="secondary" className="text-xs">
+                          {brand}
+                        </Badge>
+                      ))}
+                    </div>
                     <Button variant="outline" size="sm" className="w-full">
-                      {language === 'lt' ? 'Žiūrėti atsargas' : 'Voir la section'}
+                      {language === 'lt' ? 'Žiūrėti atsargas' : 'Voir le stock'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -113,4 +126,4 @@ const Index: React.FC = () => {
   );
 };
 
-export default Index;
+export default PiecesDetacheesPage;
