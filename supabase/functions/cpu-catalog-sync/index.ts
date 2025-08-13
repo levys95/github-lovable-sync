@@ -357,6 +357,38 @@ function extractAMDAthlon(content: string): Row[] {
   }
   return rows;
 }
+
+// Known missing generations with representative models
+const CORE_GENERATION_BACKFILL: Row[] = [
+  // Core i3 missing generations (5-9, 11-14)
+  { brand: "INTEL", family: "Core i3", generation: "5", model: "i3-5005U", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "6", model: "i3-6100", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "7", model: "i3-7100", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "8", model: "i3-8100", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "9", model: "i3-9100F", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "11", model: "i3-11100B", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "12", model: "i3-12100", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "13", model: "i3-13100", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i3", generation: "14", model: "i3-14100", base_clock_ghz: null },
+  
+  // Core i5 missing generations (6, 7, 9-11)
+  { brand: "INTEL", family: "Core i5", generation: "6", model: "i5-6500", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i5", generation: "7", model: "i5-7500", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i5", generation: "9", model: "i5-9400F", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i5", generation: "10", model: "i5-10400", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i5", generation: "11", model: "i5-11400", base_clock_ghz: null },
+  
+  // Core i7 missing generations (8-12)
+  { brand: "INTEL", family: "Core i7", generation: "8", model: "i7-8700K", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i7", generation: "9", model: "i7-9700K", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i7", generation: "10", model: "i7-10700K", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i7", generation: "11", model: "i7-11700K", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i7", generation: "12", model: "i7-12700K", base_clock_ghz: null },
+  
+  // Core i9 missing generations (11, 12)
+  { brand: "INTEL", family: "Core i9", generation: "11", model: "i9-11900K", base_clock_ghz: null },
+  { brand: "INTEL", family: "Core i9", generation: "12", model: "i9-12900K", base_clock_ghz: null },
+];
  
 function uniqueByKey(rows: Row[]): Row[] {
   const seen = new Set<string>();
@@ -440,6 +472,9 @@ async function runSync(scope: "intel" | "amd" | "all") {
   let amdRows: Row[] = [];
 
   if (scope === "intel" || scope === "all") {
+    // Add known missing generations first
+    intelRows.push(...CORE_GENERATION_BACKFILL);
+    
     for (const url of intelSources) {
       try {
         const html = await fetchText(url);
